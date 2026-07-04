@@ -1,0 +1,15 @@
+Content-Type: multipart/related; type="application/json"; boundary="rx-fixture-0001"; start="<root>"
+
+
+--rx-fixture-0001
+Content-ID: <root>
+Content-Type: application/json
+Content-Transfer-Encoding: binary
+
+{"title":"t","report":{"Include":{"href":"cid:att-1"}}}
+--rx-fixture-0001
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: binary
+
+attachment content
+--rx-fixture-0001--

@@ -1,0 +1,9 @@
+Content-Type: multipart/related; type="application/json"; boundary="rx-fixture-0001"; start="<root>"
+
+
+--rx-fixture-0001
+Content-ID: <not-the-root>
+Content-Type: application/json
+
+{"title":"t"}
+--rx-fixture-0001--

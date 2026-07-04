@@ -1,0 +1,40 @@
+Content-Type: multipart/related; type="application/json"; boundary="rx-fixture-0001"; start="<root>"
+
+
+--rx-fixture-0001
+Content-ID: <root>
+Content-Type: application/json
+Content-Transfer-Encoding: binary
+
+{"title":"t","report":null}
+--rx-fixture-0001
+Content-ID: <extra-0>
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: binary
+
+unreferenced part 0
+--rx-fixture-0001
+Content-ID: <extra-1>
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: binary
+
+unreferenced part 1
+--rx-fixture-0001
+Content-ID: <extra-2>
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: binary
+
+unreferenced part 2
+--rx-fixture-0001
+Content-ID: <extra-3>
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: binary
+
+unreferenced part 3
+--rx-fixture-0001
+Content-ID: <extra-4>
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: binary
+
+unreferenced part 4
+--rx-fixture-0001--

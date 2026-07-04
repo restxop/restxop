@@ -89,11 +89,13 @@ public final class MessageReader implements AutoCloseable {
      */
     public <T> ReadResult<T> read(String contentType, InputStream body, ResolvableTypeInfo type,
             AutoCloseable upstreamRelease) {
-        MessageDescriptor descriptor = parseDescriptor(contentType);
+        // The exchange exists before any validation so that even a rejected
+        // message emits its lifecycle events and releases the upstream
         Exchange exchange = Exchange.open(config, listeners);
         IdempotentRelease release = new IdempotentRelease(upstreamRelease);
         exchange.registerResource(release::run);
         try {
+            MessageDescriptor descriptor = parseDescriptor(contentType);
             DelimiterScanner scanner = new DelimiterScanner(body, descriptor.boundary(),
                     config.readBufferSize(), exchange.id());
             InputStream rootPart = scanner.nextPart();
