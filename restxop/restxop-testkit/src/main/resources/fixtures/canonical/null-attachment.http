@@ -1,0 +1,10 @@
+Content-Type: multipart/related; type="application/json"; boundary="rx-fixture-0001"; start="<root>"
+
+
+--rx-fixture-0001
+Content-ID: <root>
+Content-Type: application/json
+Content-Transfer-Encoding: binary
+
+{"title":"no report","report":null}
+--rx-fixture-0001--

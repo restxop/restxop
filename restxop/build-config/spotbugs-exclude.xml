@@ -1,4 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
-  <!-- Intentionally empty: add narrowly-scoped exclusions with justification only -->
+  <!-- Storing the causal Throwable is the poison-on-failure design (FR-021):
+       the exact exception instance must be delivered to blocked consumers -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+    <Or>
+      <And>
+        <Class name="dev.restxop.core.internal.buffer.ChaseBuffer"/>
+        <Field name="poison"/>
+      </And>
+      <And>
+        <Class name="dev.restxop.core.internal.exchange.Exchange"/>
+        <Field name="failureCause"/>
+      </And>
+    </Or>
+  </Match>
+
+  <!-- Fixture/message carriers hand out their byte[] on purpose: assertions
+       compare wire bytes directly and never mutate them (documented) -->
+  <Match>
+    <Or>
+      <Bug pattern="EI_EXPOSE_REP"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </Or>
+    <Or>
+      <Class name="dev.restxop.testkit.WireFixture"/>
+      <Class name="dev.restxop.testkit.RestxopConformanceSuite$EncodedMessage"/>
+    </Or>
+  </Match>
+
+  <!-- Testkit payload models are (de)serialized reflectively by Jackson;
+       their public fields are read by the serializer, not by Java code -->
+  <Match>
+    <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    <Package name="dev.restxop.testkit.model"/>
+  </Match>
 </FindBugsFilter>

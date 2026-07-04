@@ -1,0 +1,24 @@
+Content-Type: multipart/related; type="application/json"; boundary="rx-fixture-0001"; start="<root>"
+
+
+--rx-fixture-0001
+Content-ID: <root>
+Content-Type: application/json
+Content-Transfer-Encoding: binary
+
+{"name":"bundle","first":{"Include":{"href":"cid:att-1"}},"second":{"Include":{"href":"cid:att-2"}}}
+--rx-fixture-0001
+Content-ID: <att-1>
+Content-Type: text/plain
+Content-Disposition: attachment; filename="alpha.txt"
+Content-Transfer-Encoding: binary
+
+alpha content
+--rx-fixture-0001
+Content-ID: <att-2>
+Content-Type: application/pdf
+Content-Disposition: attachment; filename="report.pdf"
+Content-Transfer-Encoding: binary
+
+%PDF-1.7 fake minimal content
+--rx-fixture-0001--

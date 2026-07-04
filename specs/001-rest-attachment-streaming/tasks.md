@@ -43,9 +43,9 @@
 - [X] T013 [P] Delimiter scanner tests FIRST (CRLF-owned-by-delimiter — no trailing bytes in content; boundary-like content not split; legacy adversarial repeat-boundary fixture; LF framing; closing delimiter + epilogue drain; truncation → MalformedMessageException) in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/mime/DelimiterScannerTest.java`
 - [X] T014 MIME header/parameter parser implementation (wire-format §3–4 incl. ID normalization) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/mime/` (PartHeaders, ContentTypeParams, IdNormalizer)
 - [X] T015 Buffered delimiter scanner (KMP with cross-refill state, bulk emission) per research R3 in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/mime/DelimiterScanner.java`
-- [ ] T016 Exchange lifecycle per data-model.md (states OPEN→COMPLETED/FAILED/RECLAIMED, drainState, resource registry with idempotent close, listener dispatch swallowing listener exceptions, shared TTL reaper scheduler) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/exchange/Exchange.java` (+ Reaper.java)
-- [ ] T017 Exchange unit tests (transition legality, double-close no-op, listener exception isolation, reaper reclamation) in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/exchange/ExchangeTest.java`
-- [ ] T018 Testkit skeleton: fixture loader, canonical fixture set (single/multi/nested/null/zero-attachment `.http` files per contracts/wire-format.md), `RestxopConformanceSuite` abstract base in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/` + `restxop/restxop-testkit/src/main/resources/fixtures/`
+- [X] T016 Exchange lifecycle per data-model.md (states OPEN→COMPLETED/FAILED/RECLAIMED, drainState, resource registry with idempotent close, listener dispatch swallowing listener exceptions, shared TTL reaper scheduler) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/exchange/Exchange.java` (+ Reaper.java)
+- [X] T017 Exchange unit tests (transition legality, double-close no-op, listener exception isolation, reaper reclamation) in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/exchange/ExchangeTest.java`
+- [X] T018 Testkit skeleton: fixture loader, canonical fixture set (single/multi/nested/null/zero-attachment `.http` files per contracts/wire-format.md), `RestxopConformanceSuite` abstract base in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/` + `restxop/restxop-testkit/src/main/resources/fixtures/`
 
 **Checkpoint**: Core primitives verified in isolation — story phases can begin
 

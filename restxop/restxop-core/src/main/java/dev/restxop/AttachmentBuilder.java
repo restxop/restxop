@@ -38,7 +38,7 @@ public final class AttachmentBuilder {
     private final ContentSource source;
     private String filename;
     private String contentType;
-    private long contentLength = -1;
+    private Long contentLength;
 
     private AttachmentBuilder(ContentSource source) {
         this.source = source;
@@ -70,7 +70,7 @@ public final class AttachmentBuilder {
         Objects.requireNonNull(bytes, "bytes");
         byte[] copy = bytes.clone();
         AttachmentBuilder builder = new AttachmentBuilder(() -> new ByteArrayInputStream(copy));
-        builder.contentLength = copy.length;
+        builder.contentLength = (long) copy.length;
         return builder;
     }
 
@@ -116,9 +116,9 @@ public final class AttachmentBuilder {
         private final ContentSource source;
         private final String filename;
         private final String contentType;
-        private final long contentLength;
+        private final Long contentLength;
 
-        SourceAttachment(ContentSource source, String filename, String contentType, long contentLength) {
+        SourceAttachment(ContentSource source, String filename, String contentType, Long contentLength) {
             this.source = source;
             this.filename = filename;
             this.contentType = contentType;
@@ -142,7 +142,7 @@ public final class AttachmentBuilder {
 
         @Override
         public java.util.OptionalLong contentLength() {
-            return contentLength < 0 ? java.util.OptionalLong.empty()
+            return contentLength == null ? java.util.OptionalLong.empty()
                     : java.util.OptionalLong.of(contentLength);
         }
     }
