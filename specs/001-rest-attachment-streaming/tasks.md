@@ -72,9 +72,9 @@
 - [X] T026 [P] [US1] Boot 4 starter equivalent in `restxop/restxop-spring-boot-4-starter/src/main/java/dev/restxop/boot4/`
 - [X] T027 [US1] RestTemplate deferred-close customizer (response held until drain completes per contracts/public-api.md) in both starters (`client/RestxopRestTemplateCustomizer.java` in each)
 - [X] T028 [US1] Wire US1 conformance cases into both starter test modules extending `RestxopConformanceSuite` (`restxop/restxop-spring-boot-3-starter/src/test/java/.../Boot3ConformanceTest.java`, boot4 equivalent)
-- [ ] T029 [P] [US1] Samples: `restxop/restxop-samples/sample-server-boot4/` + `restxop/restxop-samples/sample-client-boot4/` (payload + attachment endpoint, client copy with checksum print, `restxop.sample.size` knob)
-- [ ] T030 [P] [US1] Samples: `restxop/restxop-samples/sample-server-boot3/` + `restxop/restxop-samples/sample-client-boot3/`
-- [ ] T031 [US1] SC-001/SC-002 acceptance test (1 GB, 256 MB heap, payload-before-completion assertion), tagged `fidelity`, in `restxop/restxop-samples/sample-client-boot4/src/test/java/`
+- [X] T029 [P] [US1] Samples: `restxop/restxop-samples/sample-server-boot4/` + `restxop/restxop-samples/sample-client-boot4/` (payload + attachment endpoint, client copy with checksum print, `restxop.sample.size` knob)
+- [X] T030 [P] [US1] Samples: `restxop/restxop-samples/sample-server-boot3/` + `restxop/restxop-samples/sample-client-boot3/`
+- [X] T031 [US1] SC-001/SC-002 acceptance test (1 GB, 256 MB heap, payload-before-completion assertion), tagged `fidelity`, in `restxop/restxop-samples/sample-client-boot4/src/test/java/`
 
 **Checkpoint**: MVP — quickstart §2 passes on both generations
 

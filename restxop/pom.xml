@@ -76,6 +76,16 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>dev.restxop</groupId>
+        <artifactId>restxop-spring-boot-3-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>dev.restxop</groupId>
+        <artifactId>restxop-spring-boot-4-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
@@ -102,6 +112,10 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.13.0</version>
+          <configuration>
+            <!-- Spring MVC parameter-name discovery (@RequestParam et al.) -->
+            <parameters>true</parameters>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

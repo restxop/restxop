@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
@@ -79,12 +80,30 @@ public final class DeferredCloseClientHttpRequestFactory implements ClientHttpRe
         return new DeferredCloseRequest(request);
     }
 
-    private static final class DeferredCloseRequest implements ClientHttpRequest {
+    private static final class DeferredCloseRequest
+            implements ClientHttpRequest, StreamingHttpOutputMessage {
 
         private final ClientHttpRequest delegate;
 
         DeferredCloseRequest(ClientHttpRequest delegate) {
             this.delegate = delegate;
+        }
+
+        /**
+         * Preserves the delegate's streaming capability (FR-013): hiding it
+         * would push message writers onto the buffered getBody() path.
+         */
+        @Override
+        public void setBody(Body body) {
+            if (delegate instanceof StreamingHttpOutputMessage streaming) {
+                streaming.setBody(body);
+                return;
+            }
+            try {
+                body.writeTo(delegate.getBody());
+            } catch (IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
         }
 
         @Override

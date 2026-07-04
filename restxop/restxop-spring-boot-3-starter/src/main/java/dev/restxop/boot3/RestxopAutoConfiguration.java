@@ -30,6 +30,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -74,15 +75,22 @@ public class RestxopAutoConfiguration {
         return new RestxopRestTemplateCustomizer(converter);
     }
 
-    /** Registers the converter with Spring MVC when running as a server. */
-    @Bean
+    /**
+     * Registers the converter with Spring MVC when running as a server.
+     * Nested so non-web applications never introspect servlet types.
+     */
+    @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(WebMvcConfigurer.class)
-    public WebMvcConfigurer restxopWebMvcConfigurer(RestxopHttpMessageConverter converter) {
-        return new WebMvcConfigurer() {
-            @Override
-            public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-                converters.add(0, converter);
-            }
-        };
+    static class RestxopWebMvcConfiguration {
+
+        @Bean
+        WebMvcConfigurer restxopWebMvcConfigurer(RestxopHttpMessageConverter converter) {
+            return new WebMvcConfigurer() {
+                @Override
+                public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+                    converters.add(0, converter);
+                }
+            };
+        }
     }
 }

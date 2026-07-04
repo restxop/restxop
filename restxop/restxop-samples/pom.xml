@@ -22,6 +22,10 @@
     <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
-  <!-- Sample modules are added with User Story 1 (T029/T030) -->
-  <modules/>
+  <modules>
+    <module>sample-server-boot4</module>
+    <module>sample-client-boot4</module>
+    <module>sample-server-boot3</module>
+    <module>sample-client-boot3</module>
+  </modules>
 </project>
