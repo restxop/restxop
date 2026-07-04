@@ -31,11 +31,11 @@
 
 **⚠️ CRITICAL**: No user story work until this phase completes
 
-- [ ] T004 [P] Error hierarchy per data-model.md in `restxop/restxop-core/src/main/java/dev/restxop/` (RestxopException, MalformedMessageException, LimitExceededException, ExchangeTimeoutException, AttachmentUnavailableException, ExchangeFailedException)
-- [ ] T005 [P] `RestxopConfig` immutable config + validation rules (defaults per research R10) in `restxop/restxop-core/src/main/java/dev/restxop/RestxopConfig.java` with unit test `restxop/restxop-core/src/test/java/dev/restxop/RestxopConfigTest.java`
-- [ ] T006 [P] SPI interfaces per contracts/public-api.md in `restxop/restxop-core/src/main/java/dev/restxop/spi/` (RootPartCodec, AttachmentCollector, AttachmentResolver, SpoolStorage, OverflowStore, ExchangeListener, ExchangeInfo, AttachmentInfo)
-- [ ] T007 `Attachment` interface + builder + factories (Path/File/byte[]/InputStream + metadata overrides) in `restxop/restxop-core/src/main/java/dev/restxop/Attachment.java`, plus `AttachmentAdapters` (optional jakarta.activation interop) — depends on T004
-- [ ] T008 [P] Unit tests for Attachment factories/metadata/adapters in `restxop/restxop-core/src/test/java/dev/restxop/AttachmentTest.java`
+- [X] T004 [P] Error hierarchy per data-model.md in `restxop/restxop-core/src/main/java/dev/restxop/` (RestxopException, MalformedMessageException, LimitExceededException, ExchangeTimeoutException, AttachmentUnavailableException, ExchangeFailedException)
+- [X] T005 [P] `RestxopConfig` immutable config + validation rules (defaults per research R10) in `restxop/restxop-core/src/main/java/dev/restxop/RestxopConfig.java` with unit test `restxop/restxop-core/src/test/java/dev/restxop/RestxopConfigTest.java`
+- [X] T006 [P] SPI interfaces per contracts/public-api.md in `restxop/restxop-core/src/main/java/dev/restxop/spi/` (RootPartCodec, AttachmentCollector, AttachmentResolver, SpoolStorage, OverflowStore, ExchangeListener, ExchangeInfo, AttachmentInfo)
+- [X] T007 `Attachment` interface + builder + factories (Path/File/byte[]/InputStream + metadata overrides) in `restxop/restxop-core/src/main/java/dev/restxop/Attachment.java`, plus `AttachmentAdapters` (optional jakarta.activation interop) — depends on T004
+- [X] T008 [P] Unit tests for Attachment factories/metadata/adapters in `restxop/restxop-core/src/test/java/dev/restxop/AttachmentTest.java`
 - [ ] T009 ChaseBuffer tests FIRST (write-then-chase, window wraparound, overflow spill and drain-back, reader-outruns-writer await, poison wake-up of blocked reader, read-wait deadline expiry, bulk-array IO only, per-attachment cap breach) in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/buffer/ChaseBufferTest.java`
 - [ ] T010 ChaseBuffer implementation per research R2 (lock + condition, memory ring window, OverflowStore spill) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/buffer/ChaseBuffer.java` + default file `SpoolStorage` (owner-only perms) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/buffer/FileSpoolStorage.java`
 - [ ] T011 ChaseBuffer concurrency stress test (tag `stress`: randomized writer/reader pacing, checksum equality across 10k iterations) in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/buffer/ChaseBufferStressTest.java`
