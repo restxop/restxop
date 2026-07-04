@@ -19,9 +19,9 @@
 
 **Purpose**: Maven reactor, CI matrix, quality gates
 
-- [ ] T001 Create Maven reactor: `restxop/pom.xml` (dev.restxop:restxop-parent — release 17, Apache-2.0, module list, per-module BOM imports for Boot 3.2.x and 4.0.x, JaCoCo with non-zero thresholds) plus skeleton module poms: `restxop/restxop-core/pom.xml`, `restxop/restxop-jackson2/pom.xml`, `restxop/restxop-jackson3/pom.xml`, `restxop/restxop-spring-boot-3-starter/pom.xml`, `restxop/restxop-spring-boot-4-starter/pom.xml`, `restxop/restxop-testkit/pom.xml`, `restxop/restxop-samples/pom.xml`
-- [ ] T002 [P] CI workflow in `.github/workflows/restxop-ci.yml`: JDK 17 + 25 matrix, `mvn -f restxop/pom.xml verify`, tagged groups (stress on schedule; perf informational)
-- [ ] T003 [P] Quality gates in `restxop/pom.xml`: license-header enforcement, static analysis (error-prone or SpotBugs) fail-on-new-warnings, JUnit 5 platform config for tags (failure/fidelity/legacy/load/perf/stress)
+- [X] T001 Create Maven reactor: `restxop/pom.xml` (dev.restxop:restxop-parent — release 17, Apache-2.0, module list, per-module BOM imports for Boot 3.2.x and 4.0.x, JaCoCo with non-zero thresholds) plus skeleton module poms: `restxop/restxop-core/pom.xml`, `restxop/restxop-jackson2/pom.xml`, `restxop/restxop-jackson3/pom.xml`, `restxop/restxop-spring-boot-3-starter/pom.xml`, `restxop/restxop-spring-boot-4-starter/pom.xml`, `restxop/restxop-testkit/pom.xml`, `restxop/restxop-samples/pom.xml`
+- [X] T002 [P] CI workflow in `.github/workflows/restxop-ci.yml`: JDK 17 + 25 matrix, `mvn -f restxop/pom.xml verify`, tagged groups (stress on schedule; perf informational)
+- [X] T003 [P] Quality gates in `restxop/pom.xml`: license-header enforcement, static analysis (error-prone or SpotBugs) fail-on-new-warnings, JUnit 5 platform config for tags (failure/fidelity/legacy/load/perf/stress)
 
 ---
 

@@ -1,0 +1,65 @@
+name: restxop CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Nightly stress run (tag `stress` is excluded from regular builds)
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.event_name != 'schedule'
+    name: verify (JDK ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ["17", "25"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - name: Build and verify
+        run: mvn -B -ntp -f restxop/pom.xml verify
+
+  perf:
+    # Informational only: throughput guard (SC-006) must not gate merges
+    if: github.event_name != 'schedule'
+    name: perf (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Throughput harness
+        run: mvn -B -ntp -f restxop/pom.xml -Dgroups=perf verify
+
+  stress:
+    if: github.event_name == 'schedule'
+    name: nightly stress (JDK ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ["17", "25"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - name: Stress suite
+        run: mvn -B -ntp -f restxop/pom.xml -Dgroups=stress verify
