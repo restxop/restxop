@@ -1,0 +1,15 @@
+
+--3978--3978--3968--3958--3948
+Content-ID: <mainpart>
+Content-Transfer-Encoding: binary
+Content-Type: application/json
+
+{"field1":"--3978--3978--3978 ---String Value 2","resource1":{"Include":{"href":"574e6d7e-02c7-4105-936f-52a57b434812"}}}
+--3978--3978--3968--3958--3948
+Content-Disposition: attachment;name="Test-123"
+Content-ID: 574e6d7e-02c7-4105-936f-52a57b434812
+Content-Transfer-Encoding: binary
+Content-Type: application/octet-stream
+
+This is a test
+--3978--3978--3968--3958--3948--

@@ -1,0 +1,22 @@
+### Maven ###
+target/
+mvn.log
+
+### JVM ###
+*.class
+hs_err_pid*
+
+### IDE ###
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+
+### OS ###
+.DS_Store
+
+### Test/scratch output ###
+*.log

@@ -1,0 +1,14 @@
+
+--39783eb8-26f4-4d49-bc54-f44ca1dff15c
+Content-ID: <mainpart>
+Content-Transfer-Encoding: binary
+Content-Type: application/json
+
+{"field1":"String Value","resource1":{"Include":{"href":"574e6d7e-02c7-4105-936f-52a57b434812"}}}
+--39783eb8-26f4-4d49-bc54-f44ca1dff15c
+Content-Disposition: attachment;name="Test-123"
+Content-ID: 574e6d7e-02c7-4105-936f-52a57b434812
+Content-Transfer-Encoding: binary
+Content-Type: application/octet-stream
+
+This is a tes
