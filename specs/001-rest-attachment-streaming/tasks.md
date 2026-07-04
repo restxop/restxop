@@ -66,8 +66,8 @@
 
 - [X] T021 [US1] `MessageWriter` (boundary generation, root part emission via RootPartCodec + AttachmentCollector, streamed attachment parts, closing delimiter) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/write/MessageWriter.java`
 - [X] T022 [US1] `MessageReader` + `DrainTask` (sync root parse on caller thread, RootPartCodec + AttachmentResolver wiring, drain pool with caller-runs fallback, chase-buffer creation per part, upstream release at end-of-message) per research R1 in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/read/`
-- [ ] T023 [P] [US1] Jackson 2 codec: Attachment serializer/deserializer with context attributes, Include-stub shape per wire-format §5, `canHandle` type-introspection cache, module registration in `restxop/restxop-jackson2/src/main/java/dev/restxop/jackson2/` + tests in `restxop/restxop-jackson2/src/test/java/`
-- [ ] T024 [P] [US1] Jackson 3 codec equivalent (tools.jackson APIs) in `restxop/restxop-jackson3/src/main/java/dev/restxop/jackson3/` + tests
+- [X] T023 [P] [US1] Jackson 2 codec: Attachment serializer/deserializer with context attributes, Include-stub shape per wire-format §5, `canHandle` type-introspection cache, module registration in `restxop/restxop-jackson2/src/main/java/dev/restxop/jackson2/` + tests in `restxop/restxop-jackson2/src/test/java/`
+- [X] T024 [P] [US1] Jackson 3 codec equivalent (tools.jackson APIs) in `restxop/restxop-jackson3/src/main/java/dev/restxop/jackson3/` + tests
 - [ ] T025 [P] [US1] Boot 3 starter: `RestxopHttpMessageConverter`, auto-configuration, `@ConfigurationProperties` binding (`restxop.*` per contracts/public-api.md), `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` in `restxop/restxop-spring-boot-3-starter/src/main/java/dev/restxop/boot3/`
 - [ ] T026 [P] [US1] Boot 4 starter equivalent in `restxop/restxop-spring-boot-4-starter/src/main/java/dev/restxop/boot4/`
 - [ ] T027 [US1] RestTemplate deferred-close customizer (response held until drain completes per contracts/public-api.md) in both starters (`client/RestxopRestTemplateCustomizer.java` in each)
