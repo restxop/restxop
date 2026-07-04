@@ -59,13 +59,13 @@
 
 ### Tests for User Story 1 (write FIRST, must fail before implementation)
 
-- [ ] T019 [P] [US1] Writer wire tests: single-attachment message byte-compared to canonical fixture (boundary injected), quoting/Content-ID/Disposition per wire-format §1–5, streamed source never fully buffered in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/write/MessageWriterTest.java`
-- [ ] T020 [P] [US1] Reader/drain tests: payload returned at root completion while drain still running; attachment checksum-exact via chase; upstream stream fully consumed (drain-complete) independent of consumer pace in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/read/MessageReaderTest.java`
+- [X] T019 [P] [US1] Writer wire tests: single-attachment message byte-compared to canonical fixture (boundary injected), quoting/Content-ID/Disposition per wire-format §1–5, streamed source never fully buffered in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/write/MessageWriterTest.java`
+- [X] T020 [P] [US1] Reader/drain tests: payload returned at root completion while drain still running; attachment checksum-exact via chase; upstream stream fully consumed (drain-complete) independent of consumer pace in `restxop/restxop-core/src/test/java/dev/restxop/core/internal/read/MessageReaderTest.java`
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] `MessageWriter` (boundary generation, root part emission via RootPartCodec + AttachmentCollector, streamed attachment parts, closing delimiter) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/write/MessageWriter.java`
-- [ ] T022 [US1] `MessageReader` + `DrainTask` (sync root parse on caller thread, RootPartCodec + AttachmentResolver wiring, drain pool with caller-runs fallback, chase-buffer creation per part, upstream release at end-of-message) per research R1 in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/read/`
+- [X] T021 [US1] `MessageWriter` (boundary generation, root part emission via RootPartCodec + AttachmentCollector, streamed attachment parts, closing delimiter) in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/write/MessageWriter.java`
+- [X] T022 [US1] `MessageReader` + `DrainTask` (sync root parse on caller thread, RootPartCodec + AttachmentResolver wiring, drain pool with caller-runs fallback, chase-buffer creation per part, upstream release at end-of-message) per research R1 in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/read/`
 - [ ] T023 [P] [US1] Jackson 2 codec: Attachment serializer/deserializer with context attributes, Include-stub shape per wire-format §5, `canHandle` type-introspection cache, module registration in `restxop/restxop-jackson2/src/main/java/dev/restxop/jackson2/` + tests in `restxop/restxop-jackson2/src/test/java/`
 - [ ] T024 [P] [US1] Jackson 3 codec equivalent (tools.jackson APIs) in `restxop/restxop-jackson3/src/main/java/dev/restxop/jackson3/` + tests
 - [ ] T025 [P] [US1] Boot 3 starter: `RestxopHttpMessageConverter`, auto-configuration, `@ConfigurationProperties` binding (`restxop.*` per contracts/public-api.md), `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` in `restxop/restxop-spring-boot-3-starter/src/main/java/dev/restxop/boot3/`
