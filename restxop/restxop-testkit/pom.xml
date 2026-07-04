@@ -20,6 +20,22 @@
     <restxop.coverage.min>0.40</restxop.coverage.min>
   </properties>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <configuration>
+          <!-- Abstract test suites are JUnit test code executed inside the
+               starter modules; only the fixture plumbing is measured here -->
+          <excludes>
+            <exclude>**/*Suite*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>dev.restxop</groupId>

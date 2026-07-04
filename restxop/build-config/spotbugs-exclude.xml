@@ -16,6 +16,17 @@
     </Or>
   </Match>
 
+  <!-- Composition over SPI interfaces: the injected codec is shared state by
+       design (one codec instance serves the whole application) -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+    <Or>
+      <Class name="dev.restxop.core.internal.read.MessageReader"/>
+      <Class name="dev.restxop.core.internal.write.MessageWriter"/>
+    </Or>
+    <Field name="codec"/>
+  </Match>
+
   <!-- Fixture/message carriers hand out their byte[] on purpose: assertions
        compare wire bytes directly and never mutate them (documented) -->
   <Match>
@@ -27,6 +38,27 @@
       <Class name="dev.restxop.testkit.WireFixture"/>
       <Class name="dev.restxop.testkit.RestxopConformanceSuite$EncodedMessage"/>
     </Or>
+  </Match>
+
+  <!-- Spring starter beans: @ConfigurationProperties requires mutable nested
+       binding objects, and DI beans intentionally share collaborator
+       references (codec, converter, runtime) across the context -->
+  <Match>
+    <Or>
+      <Bug pattern="EI_EXPOSE_REP"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </Or>
+    <Or>
+      <Package name="~dev\.restxop\.boot3.*"/>
+      <Package name="~dev\.restxop\.boot4.*"/>
+    </Or>
+  </Match>
+
+  <!-- Testkit suites are JUnit test code that ships in main scope by design;
+       static analysis of test idioms (single-use Random, shared fixture
+       collections) does not apply to them -->
+  <Match>
+    <Class name="~dev\.restxop\.testkit\..*Suite.*"/>
   </Match>
 
   <!-- Testkit payload models are (de)serialized reflectively by Jackson;
