@@ -30,7 +30,9 @@ jobs:
       - name: Hygiene check (SC-008)
         run: restxop/build-config/check-hygiene.sh
       - name: Build and verify
-        run: mvn -B -ntp -f restxop/pom.xml verify
+        # Static analysis is pinned to the JDK 17 leg: SpotBugs cannot
+        # parse newer class-file versions
+        run: mvn -B -ntp -f restxop/pom.xml verify ${{ matrix.java != '17' && '-Dspotbugs.skip=true' || '' }}
 
   js:
     if: github.event_name != 'schedule'
@@ -72,7 +74,8 @@ jobs:
           java-version: "17"
           cache: maven
       - name: Throughput harness
-        run: mvn -B -ntp -f restxop/pom.xml -Dgroups=perf verify
+        # Tag-filtered run: the coverage gate would trivially fail
+        run: mvn -B -ntp -f restxop/pom.xml -Dgroups=perf -Djacoco.skip=true verify
 
   stress:
     if: github.event_name == 'schedule'
@@ -90,4 +93,5 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
       - name: Stress suite
-        run: mvn -B -ntp -f restxop/pom.xml -Dgroups=stress verify
+        # Tag-filtered run (see perf); SpotBugs pinned to JDK 17
+        run: mvn -B -ntp -f restxop/pom.xml -Dgroups=stress -Djacoco.skip=true verify ${{ matrix.java != '17' && '-Dspotbugs.skip=true' || '' }}
