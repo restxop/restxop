@@ -66,7 +66,8 @@ public abstract class RestxopConformanceSuite {
 
         public static WriterSettings fixture() {
             return new WriterSettings(FIXTURE_BOUNDARY, FIXTURE_ROOT_ID,
-                    List.of("att-1", "att-2", "att-3", "att-4"));
+                    List.of("att-1", "att-2", "att-3", "att-4",
+                            "att-5", "att-6", "att-7", "att-8"));
         }
     }
 

@@ -187,6 +187,20 @@ public final class Exchange implements AutoCloseable {
         dispatch(l -> l.bytesSpooled(info, attachment, partTotal));
     }
 
+    /**
+     * Removes a discarded part's spooled bytes from the per-message
+     * aggregate: early-closed/abandoned attachments free their spool
+     * immediately and must not count against the cap (FR-017, edge cases).
+     */
+    public void releaseSpooled(String contentId) {
+        synchronized (lock) {
+            Long previous = spooledPerPart.remove(contentId);
+            if (previous != null) {
+                spooledAggregate -= previous;
+            }
+        }
+    }
+
     /** Fires the {@code payloadDelivered} listener event (read side). */
     public void payloadDelivered() {
         log.debug("[exchange {}] payload delivered", id);

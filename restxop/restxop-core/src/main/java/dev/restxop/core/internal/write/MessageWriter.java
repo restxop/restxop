@@ -107,8 +107,8 @@ public final class MessageWriter {
                     .append(attachment.contentType().orElse("application/octet-stream"))
                     .append("\r\n");
             attachment.filename().ifPresent(filename ->
-                    headers.append("Content-Disposition: attachment; filename=\"")
-                            .append(quote(filename)).append("\"\r\n"));
+                    headers.append("Content-Disposition: attachment; ")
+                            .append(dispositionFilename(filename)).append("\r\n"));
             headers.append("Content-Transfer-Encoding: binary\r\n\r\n");
             writeAscii(out, headers.toString());
 
@@ -132,9 +132,32 @@ public final class MessageWriter {
         }
     }
 
-    /** RFC 6266 quoted-string escaping for the filename parameter. */
-    private static String quote(String value) {
-        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    /**
+     * RFC 6266 filename parameter: ASCII names travel as a quoted string;
+     * non-ASCII names travel percent-encoded via the RFC 5987
+     * {@code filename*} ext-value (wire-format §3).
+     */
+    private static String dispositionFilename(String filename) {
+        boolean ascii = filename.chars().allMatch(c -> c >= 0x20 && c < 0x7F);
+        if (ascii) {
+            return "filename=\"" + filename.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        }
+        StringBuilder encoded = new StringBuilder("filename*=UTF-8''");
+        for (byte b : filename.getBytes(StandardCharsets.UTF_8)) {
+            if (isAttrChar(b)) {
+                encoded.append((char) b);
+            } else {
+                encoded.append('%').append(String.format("%02X", b));
+            }
+        }
+        return encoded.toString();
+    }
+
+    /** RFC 5987 attr-char: characters allowed unencoded in an ext-value. */
+    private static boolean isAttrChar(byte b) {
+        return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9')
+                || b == '!' || b == '#' || b == '$' || b == '&' || b == '+' || b == '-'
+                || b == '.' || b == '^' || b == '_' || b == '`' || b == '|' || b == '~';
     }
 
     private static void writeAscii(OutputStream out, String text) throws IOException {

@@ -230,6 +230,38 @@ public final class ChaseBuffer {
         count -= n;
     }
 
+    /**
+     * Bounded wait for an externally observable condition tied to writer
+     * progress — used by metadata waiters (part headers are bound just
+     * before the first content write, so any buffer signal re-checks).
+     * Gives up at the read-wait deadline or when the buffer is terminal;
+     * returns the condition's final value. Never throws.
+     */
+    public boolean awaitWriterCondition(java.util.function.BooleanSupplier condition) {
+        lock.lock();
+        try {
+            long deadline = System.nanoTime() + readWaitNanos;
+            while (!condition.getAsBoolean()) {
+                if (poison != null || writerComplete || discard || released) {
+                    return condition.getAsBoolean();
+                }
+                long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) {
+                    return condition.getAsBoolean();
+                }
+                try {
+                    dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return condition.getAsBoolean();
+                }
+            }
+            return true;
+        } finally {
+            lock.unlock();
+        }
+    }
+
     /** The drain finished this part; wakes any blocked reader. */
     public void completeWriter() {
         lock.lock();

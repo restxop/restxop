@@ -37,6 +37,7 @@ final class ExchangeAttachment implements Attachment, AttachmentInfo {
     private final DrainTask drain;
     private volatile String filename;
     private volatile String contentType;
+    private volatile boolean metadataBound;
     private AttachmentStream stream;
 
     ExchangeAttachment(String contentId, ChaseBuffer buffer, DrainTask drain) {
@@ -52,6 +53,21 @@ final class ExchangeAttachment implements Attachment, AttachmentInfo {
     void bindMetadata(Optional<String> filename, Optional<String> contentType) {
         this.filename = filename.orElse(null);
         this.contentType = contentType.orElse(null);
+        this.metadataBound = true;
+    }
+
+    /**
+     * Bounded wait for part-header arrival (FR-019): the drain binds
+     * metadata the moment it reaches the part, so this returns quickly under
+     * the eager-drain model and gives up (leaving the metadata empty) at the
+     * read-wait deadline or when the exchange ends without the part.
+     */
+    private void awaitMetadata() {
+        if (metadataBound) {
+            return;
+        }
+        drain.ensureRunning();
+        buffer.awaitWriterCondition(() -> metadataBound);
     }
 
     @Override
@@ -69,11 +85,13 @@ final class ExchangeAttachment implements Attachment, AttachmentInfo {
 
     @Override
     public Optional<String> filename() {
+        awaitMetadata();
         return Optional.ofNullable(filename);
     }
 
     @Override
     public Optional<String> contentType() {
+        awaitMetadata();
         return Optional.ofNullable(contentType);
     }
 
@@ -115,6 +133,7 @@ final class ExchangeAttachment implements Attachment, AttachmentInfo {
             }
             exhausted = true;
             buffer.discardRemaining();
+            drain.attachmentDiscarded(ExchangeAttachment.this);
             reportConsumed();
         }
 

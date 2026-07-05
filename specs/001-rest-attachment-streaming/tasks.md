@@ -111,14 +111,14 @@
 
 ### Tests for User Story 3 (write FIRST)
 
-- [ ] T039 [US3] Fidelity suite (tag `fidelity`): nested object, List/Map of attachments, inherited field, null field (no part emitted, null on read), zero-attachment immediate return, duplicate-reference single-part/shared-instance, out-of-order reads with window overflow crossover, filename (incl. RFC 6266 non-ASCII) + content-type round-trip — fixtures + suite in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/FidelitySuite.java` and `fixtures/fidelity/`
+- [X] T039 [US3] Fidelity suite (tag `fidelity`): nested object, List/Map of attachments, inherited field, null field (no part emitted, null on read), zero-attachment immediate return, duplicate-reference single-part/shared-instance, out-of-order reads with window overflow crossover, filename (incl. RFC 6266 non-ASCII) + content-type round-trip — fixtures + suite in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/FidelitySuite.java` and `fixtures/fidelity/`
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] Identity-map dedup on write and shared-instance resolution on read in both codecs (`restxop/restxop-jackson2/.../AttachmentSerializer.java|Deserializer.java`, jackson3 equivalents)
-- [ ] T041 [US3] Metadata carriage: Content-Disposition (RFC 6266 quoting/`filename*`) and Content-Type emission in `MessageWriter`, exposure on exchange-backed Attachment via PartHeaders in `MessageReader`
-- [ ] T042 [US3] Out-of-order consumption hardening (bufferIndex retention, chase buffers readable after drain completion, per-message aggregate cap accounting excluding discarded parts) in core read path
-- [ ] T043 [US3] Run US3 conformance additions through both starters (extend Boot3/Boot4 conformance tests)
+- [X] T040 [US3] Identity-map dedup on write and shared-instance resolution on read in both codecs (`restxop/restxop-jackson2/.../AttachmentSerializer.java|Deserializer.java`, jackson3 equivalents)
+- [X] T041 [US3] Metadata carriage: Content-Disposition (RFC 6266 quoting/`filename*`) and Content-Type emission in `MessageWriter`, exposure on exchange-backed Attachment via PartHeaders in `MessageReader`
+- [X] T042 [US3] Out-of-order consumption hardening (bufferIndex retention, chase buffers readable after drain completion, per-message aggregate cap accounting excluding discarded parts) in core read path
+- [X] T043 [US3] Run US3 conformance additions through both starters (extend Boot3/Boot4 conformance tests)
 
 **Checkpoint**: quickstart §4 passes on both generations
 

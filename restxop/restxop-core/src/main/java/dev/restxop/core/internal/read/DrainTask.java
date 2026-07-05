@@ -198,6 +198,11 @@ final class DrainTask implements Runnable {
         maybeComplete();
     }
 
+    /** Early close: the part's spool is gone, so its aggregate share is freed. */
+    void attachmentDiscarded(ExchangeAttachment attachment) {
+        exchange.releaseSpooled(attachment.contentId());
+    }
+
     private void maybeComplete() {
         if (unfinished.get() == 0 && exchange.drainState() == Exchange.DrainState.DONE) {
             exchange.complete();

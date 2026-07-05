@@ -56,5 +56,13 @@
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- The testkit's own suite executions run against a real serializer so
+         traversal-driven discovery is exercised; not part of the published
+         artifact's surface -->
+    <dependency>
+      <groupId>dev.restxop</groupId>
+      <artifactId>restxop-jackson2</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

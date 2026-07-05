@@ -1,0 +1,17 @@
+Content-Type: multipart/related; type="application/json"; boundary="rx-fixture-0001"; start="<root>"
+
+
+--rx-fixture-0001
+Content-ID: <root>
+Content-Type: application/json
+Content-Transfer-Encoding: binary
+
+{"title":"named","report":{"Include":{"href":"cid:att-1"}}}
+--rx-fixture-0001
+Content-ID: <att-1>
+Content-Type: application/pdf
+Content-Disposition: attachment; filename*=UTF-8''na%C3%AFve%20%E2%80%93%20%E6%96%87%E4%BB%B6.pdf
+Content-Transfer-Encoding: binary
+
+pdf content bytes for the rfc6266 fixture
+--rx-fixture-0001--

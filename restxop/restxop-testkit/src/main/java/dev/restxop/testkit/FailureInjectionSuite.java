@@ -125,6 +125,20 @@ public abstract class FailureInjectionSuite {
         return out.toByteArray();
     }
 
+    /** Serializes one two-attachment sample message to bytes. */
+    protected byte[] encodeBundle(byte[] first, byte[] second) throws IOException {
+        dev.restxop.testkit.model.BundlePayload payload =
+                new dev.restxop.testkit.model.BundlePayload("bundle",
+                        Attachment.builder(first).filename("a.bin").build(),
+                        Attachment.builder(second).filename("b.bin").build());
+        MessageWriter writer = new MessageWriter(config().build(), codec(), fixtureIds());
+        Exchange exchange = Exchange.open(config().build(), List.of());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writer.write(exchange, payload, out);
+        exchange.complete();
+        return out.toByteArray();
+    }
+
     private static byte[] sampleContent(int size) {
         byte[] content = new byte[size];
         new Random(4711).nextBytes(content);
@@ -543,6 +557,36 @@ public abstract class FailureInjectionSuite {
                 "unreferenced parts are skipped with a warning, not an error");
         assertTrue(capture.has("attachmentConsumed"));
         assertEquals(java.util.Optional.empty(), capture.failureCause());
+    }
+
+    @Test
+    protected void discardingAnAttachmentFreesItsAggregateSpoolShare() throws Exception {
+        byte[] first = sampleContent(24 * 1024);
+        byte[] second = sampleContent(24 * 1024);
+        byte[] body = encodeBundle(first, second);
+        // Per-message cap fits either part's overflow, but not both: the
+        // exchange only survives if discarding the first frees its share
+        RestxopConfig config = config().memoryWindowPerPart(4 * 1024)
+                .spoolMaxPerAttachment(32 * 1024).spoolMaxPerMessage(32 * 1024).build();
+        int gateAt = indexOf(body, "Content-ID: <att-2>") + 512;
+        GatedInputStream transport = new GatedInputStream(body, gateAt);
+        ListenerCapture capture = new ListenerCapture();
+        SpoolHygiene.ConnectionProbe probe = new SpoolHygiene.ConnectionProbe();
+        MessageReader reader = reader(config, capture);
+
+        ReadResult<dev.restxop.testkit.model.BundlePayload> result = reader.read(CONTENT_TYPE,
+                transport, ResolvableTypeInfo.of(dev.restxop.testkit.model.BundlePayload.class),
+                probe.asReleaseHandle());
+        // The drain has fully spooled the first part behind the gate; close
+        // it unread, freeing its aggregate share before the second arrives
+        result.payload().first.contentStream().close();
+        transport.open();
+
+        byte[] receivedSecond = result.payload().second.contentStream().readAllBytes();
+        assertArrayEquals(second, receivedSecond);
+        assertHygiene(probe, capture);
+        assertEquals(Exchange.State.COMPLETED, result.exchange().state(),
+                "discarded spool share must not count against the per-message cap (T042)");
     }
 
     // ------------------------------------------------------------------
