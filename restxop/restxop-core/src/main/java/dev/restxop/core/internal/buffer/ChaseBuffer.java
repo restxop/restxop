@@ -86,6 +86,7 @@ public final class ChaseBuffer {
     private boolean discard;
     private boolean released;
     private Throwable poison;
+    private int waiters;
 
     public ChaseBuffer(String exchangeId, String contentId, int windowSize,
             long maxSpoolPerAttachment, Duration readWait,
@@ -136,7 +137,7 @@ public final class ChaseBuffer {
             if (remaining > 0) {
                 spill(buf, remainingOff, remaining);
             }
-            dataAvailable.signalAll();
+            signalWaiters();
         } finally {
             lock.unlock();
         }
@@ -207,12 +208,15 @@ public final class ChaseBuffer {
                             "no drain progress on attachment '" + contentId
                                     + "' within the read-wait deadline");
                 }
+                waiters++;
                 try {
                     dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new RestxopException(exchangeId,
                             "consumer interrupted while awaiting attachment '" + contentId + "'", e);
+                } finally {
+                    waiters--;
                 }
             }
         } finally {
@@ -249,11 +253,14 @@ public final class ChaseBuffer {
                 if (remaining <= 0) {
                     return condition.getAsBoolean();
                 }
+                waiters++;
                 try {
                     dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return condition.getAsBoolean();
+                } finally {
+                    waiters--;
                 }
             }
             return true;
@@ -267,7 +274,7 @@ public final class ChaseBuffer {
         lock.lock();
         try {
             writerComplete = true;
-            dataAvailable.signalAll();
+            signalWaiters();
         } finally {
             lock.unlock();
         }
@@ -283,7 +290,7 @@ public final class ChaseBuffer {
             if (poison == null) {
                 poison = cause;
             }
-            dataAvailable.signalAll();
+            signalWaiters();
         } finally {
             lock.unlock();
         }
@@ -301,7 +308,7 @@ public final class ChaseBuffer {
             head = 0;
             count = 0;
             closeOverflowQuietly();
-            dataAvailable.signalAll();
+            signalWaiters();
         } finally {
             lock.unlock();
         }
@@ -318,7 +325,7 @@ public final class ChaseBuffer {
             head = 0;
             count = 0;
             closeOverflowQuietly();
-            dataAvailable.signalAll();
+            signalWaiters();
         } finally {
             lock.unlock();
         }
@@ -340,6 +347,13 @@ public final class ChaseBuffer {
 
     private long pendingFile() {
         return fileWritten - fileRead;
+    }
+
+    /** Wakes parked threads only when someone is actually waiting (hot path). */
+    private void signalWaiters() {
+        if (waiters > 0) {
+            dataAvailable.signalAll();
+        }
     }
 
     private RestxopException asRestxopException(Throwable cause) {

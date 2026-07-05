@@ -102,7 +102,7 @@ release.
 | `limits.max-parts` | `1000` | > 0 |
 | `timeouts.exchange-ttl` | `10m` | > 0 |
 | `timeouts.read-wait` | `60s` | > 0, ≤ exchange-ttl |
-| `read-buffer-size` | `8KB` | ≥ 1KB |
+| `read-buffer-size` | `64KB` | ≥ 1KB (tuned from 8KB during the T055 SC-006 pass) |
 | `strict-multipart-resolution` | `true` | starter only |
 | `legacy-compat.enabled` | `false` | starter + core behavior toggle |
 

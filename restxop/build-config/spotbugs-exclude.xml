@@ -59,7 +59,7 @@
        test idioms (single-use Random, captured causal Throwables, shared
        fixture collections) does not apply to them -->
   <Match>
-    <Class name="~dev\.restxop\.testkit\.(.*Suite.*|ListenerCapture.*|StubRootPartCodec.*|SpoolHygiene.*)"/>
+    <Class name="~dev\.restxop\.testkit\.(.*Suite.*|.*Harness.*|ListenerCapture.*|StubRootPartCodec.*|SpoolHygiene.*)"/>
   </Match>
 
   <!-- Testkit payload models are (de)serialized reflectively by Jackson;

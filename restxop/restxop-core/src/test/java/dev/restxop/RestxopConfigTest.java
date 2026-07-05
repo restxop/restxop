@@ -40,7 +40,7 @@ class RestxopConfigTest {
         assertEquals(1000, config.maxParts());
         assertEquals(Duration.ofMinutes(10), config.exchangeTtl());
         assertEquals(Duration.ofSeconds(60), config.readWait());
-        assertEquals(8 * 1024, config.readBufferSize());
+        assertEquals(64 * 1024, config.readBufferSize());
         assertFalse(config.legacyCompatEnabled());
     }
 

@@ -270,7 +270,7 @@ is a comparative loopback harness in the testkit, tagged `perf`.
 | `limits.max-parts` | 1,000 | FR-008 |
 | `timeouts.exchange-ttl` | 10 min | reaper-enforced total exchange lifetime (FR-023) |
 | `timeouts.read-wait` | 60 s | max consumer wait for drain progress on a chase buffer (FR-020) |
-| `read-buffer-size` | 8 KiB | transport scan buffer (R3) |
+| `read-buffer-size` | 64 KiB | transport scan buffer (R3; tuned from 8 KiB in the T055 SC-006 pass) |
 | `strict-multipart-resolution` | true | R6 |
 | `legacy-compat.enabled` | false | R7 |
 

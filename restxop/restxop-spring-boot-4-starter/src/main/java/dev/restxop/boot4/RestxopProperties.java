@@ -33,7 +33,7 @@ public class RestxopProperties {
     private DataSize memoryWindowPerPart = DataSize.ofKilobytes(256);
 
     /** Transport scan buffer size. */
-    private DataSize readBufferSize = DataSize.ofKilobytes(8);
+    private DataSize readBufferSize = DataSize.ofKilobytes(64);
 
     /** Keep the servlet multipart machinery off multipart/related requests (research R6). */
     private boolean strictMultipartResolution = true;

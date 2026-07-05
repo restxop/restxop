@@ -28,8 +28,9 @@ import java.nio.charset.StandardCharsets;
  * boundary-like byte sequence without correct framing (line-break prefix and
  * valid tail) is content.
  *
- * <p>Matching runs a KMP automaton over the buffered window for the
- * LF-anchored pattern {@code LF "--" boundary}; the trailing
+ * <p>Matching scans the buffered window for the LF-anchored pattern
+ * {@code LF "--" boundary} (anchor-byte scan with direct verification); the
+ * trailing
  * delimiter-length bytes of each window are retained across refills so a
  * delimiter (including its optional leading CR) can never be split by a
  * refill and leak bytes into content. Single-threaded use by the drain.</p>
@@ -45,11 +46,12 @@ public final class DelimiterScanner {
     private final String exchangeId;
     /** LF-anchored pattern: {@code \n--boundary}. */
     private final byte[] pattern;
-    private final int[] kmpFailure;
     private final byte[] buf;
     private int pos;
     private int limit;
     private boolean eof;
+    /** Buffer index below which no delimiter candidate can start (scan cache). */
+    private int cleanBefore;
 
     private PartStream current;
     private boolean closingSeen;
@@ -64,7 +66,6 @@ public final class DelimiterScanner {
         pattern[1] = '-';
         pattern[2] = '-';
         System.arraycopy(boundaryBytes, 0, pattern, 3, boundaryBytes.length);
-        this.kmpFailure = buildFailureTable(pattern);
         int capacity = Math.max(bufferSize, pattern.length + 1 + TAIL_LOOKAHEAD + 128);
         this.buf = new byte[capacity];
         // Virtual CRLF ahead of the stream so an opening delimiter at byte 0
@@ -74,20 +75,6 @@ public final class DelimiterScanner {
         this.limit = 2;
     }
 
-    private static int[] buildFailureTable(byte[] pattern) {
-        int[] failure = new int[pattern.length];
-        int k = 0;
-        for (int i = 1; i < pattern.length; i++) {
-            while (k > 0 && pattern[i] != pattern[k]) {
-                k = failure[k - 1];
-            }
-            if (pattern[i] == pattern[k]) {
-                k++;
-            }
-            failure[i] = k;
-        }
-        return failure;
-    }
 
     /**
      * Advances to the next part: drains the current part (and the preamble
@@ -142,6 +129,7 @@ public final class DelimiterScanner {
         if (pos > 0) {
             System.arraycopy(buf, pos, buf, 0, limit - pos);
             limit -= pos;
+            cleanBefore = Math.max(0, cleanBefore - pos);
             pos = 0;
         }
         if (eof || limit == buf.length) {
@@ -155,22 +143,38 @@ public final class DelimiterScanner {
         }
     }
 
-    /** KMP search for the LF-anchored pattern fully inside {@code [from, limit)}. */
+    /**
+     * Search for the LF-anchored pattern fully inside {@code [from, limit)}.
+     * Hot path: a tight scan for the LF anchor byte with a direct compare on
+     * hits — equivalent to the KMP automaton (the pattern starts with a byte
+     * that cannot recur inside a boundary token, so candidates never
+     * overlap), but an order of magnitude faster per transported byte
+     * (SC-006 tuning). The adversarial fixtures in the test suite pin the
+     * equivalence.
+     */
     private int findCandidate(int from) {
-        int k = 0;
-        for (int i = from; i < limit; i++) {
-            byte c = buf[i];
-            while (k > 0 && c != pattern[k]) {
-                k = kmpFailure[k - 1];
+        int last = limit - pattern.length;
+        for (int i = Math.max(from, cleanBefore); i <= last; i++) {
+            if (buf[i] != '\n') {
+                continue;
             }
-            if (c == pattern[k]) {
-                k++;
-            }
-            if (k == pattern.length) {
-                return i - pattern.length + 1;
+            if (matchesPatternAt(i)) {
+                return i;
             }
         }
+        // Nothing can start before this point; per-byte callers (header
+        // parsing) must not pay a full window re-scan per byte
+        cleanBefore = Math.max(cleanBefore, last + 1);
         return -1;
+    }
+
+    private boolean matchesPatternAt(int position) {
+        for (int j = 1; j < pattern.length; j++) {
+            if (buf[position + j] != pattern[j]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -233,7 +237,7 @@ public final class DelimiterScanner {
     }
 
     /** Content stream of one part (or the discarded preamble). */
-    private final class PartStream extends InputStream {
+    private final class PartStream extends InputStream implements BulkTransfer {
 
         private final boolean preamble;
         private boolean ended;
@@ -249,14 +253,13 @@ public final class DelimiterScanner {
             return n < 0 ? -1 : single[0] & 0xFF;
         }
 
-        @Override
-        public int read(byte[] out, int off, int len) throws IOException {
-            if (ended) {
-                return -1;
-            }
-            if (len == 0) {
-                return 0;
-            }
+        /**
+         * Locates the next contiguous run of content bytes at {@code pos},
+         * refilling and resolving delimiter candidates as needed.
+         *
+         * @return the run length (>=1), or -1 when the part is exhausted
+         */
+        private int nextChunkLength(int cap) throws IOException {
             while (true) {
                 if (pos >= limit) {
                     if (eof) {
@@ -276,10 +279,7 @@ public final class DelimiterScanner {
                     // leading CR may straddle the refill edge)
                     int safeEnd = limit - (pattern.length + 1);
                     if (safeEnd > pos) {
-                        int n = Math.min(len, safeEnd - pos);
-                        System.arraycopy(buf, pos, out, off, n);
-                        pos += n;
-                        return n;
+                        return Math.min(cap, safeEnd - pos);
                     }
                     refill();
                     continue;
@@ -289,25 +289,51 @@ public final class DelimiterScanner {
                 int contentEnd = candidate > pos && buf[candidate - 1] == '\r'
                         ? candidate - 1 : candidate;
                 if (contentEnd > pos) {
-                    int n = Math.min(len, contentEnd - pos);
-                    System.arraycopy(buf, pos, out, off, n);
-                    pos += n;
-                    return n;
+                    return Math.min(cap, contentEnd - pos);
                 }
                 // The candidate starts right at the read position: resolve it
                 int resolution = resolveWithRefill(candidate);
                 if (resolution == -1) {
                     // Not a delimiter: the line-break byte (and a preceding
-                    // CR, if any) are content after all
-                    int n = Math.min(len, (candidate + 1) - pos);
-                    System.arraycopy(buf, pos, out, off, n);
-                    pos += n;
-                    return n;
+                    // CR, if any) are content after all — and definitively so
+                    cleanBefore = Math.max(cleanBefore, candidate + 1);
+                    return Math.min(cap, (candidate + 1) - pos);
                 }
                 pos = resolution;
                 ended = true;
                 return -1;
             }
+        }
+
+        @Override
+        public int read(byte[] out, int off, int len) throws IOException {
+            if (ended) {
+                return -1;
+            }
+            if (len == 0) {
+                return 0;
+            }
+            int n = nextChunkLength(len);
+            if (n < 0) {
+                return -1;
+            }
+            System.arraycopy(buf, pos, out, off, n);
+            pos += n;
+            return n;
+        }
+
+        @Override
+        public int transferNext(Sink sink) throws IOException {
+            if (ended) {
+                return -1;
+            }
+            int n = nextChunkLength(Integer.MAX_VALUE);
+            if (n < 0) {
+                return -1;
+            }
+            sink.accept(buf, pos, n);
+            pos += n;
+            return n;
         }
 
         /**

@@ -46,8 +46,8 @@ public final class RestxopConfig {
     public static final Duration DEFAULT_EXCHANGE_TTL = Duration.ofMinutes(10);
     /** 60 second maximum consumer wait for drain progress on a chase buffer. */
     public static final Duration DEFAULT_READ_WAIT = Duration.ofSeconds(60);
-    /** 8 KiB transport scan buffer. */
-    public static final int DEFAULT_READ_BUFFER_SIZE = 8 * 1024;
+    /** 64 KiB transport scan buffer (tuned for SC-006 bulk throughput). */
+    public static final int DEFAULT_READ_BUFFER_SIZE = 64 * 1024;
 
     private final int memoryWindowPerPart;
     private final int drainPoolSize;

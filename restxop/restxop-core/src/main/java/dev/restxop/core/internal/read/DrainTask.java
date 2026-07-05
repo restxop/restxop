@@ -175,12 +175,19 @@ final class DrainTask implements Runnable {
 
     private void copyPart(InputStream part, ChaseBuffer buffer, byte[] copyBuffer)
             throws IOException {
-        int n;
-        while ((n = part.read(copyBuffer, 0, copyBuffer.length)) != -1) {
-            if (n > 0) {
-                buffer.write(copyBuffer, 0, n);
+        if (part instanceof dev.restxop.core.internal.mime.BulkTransfer bulk) {
+            // Copy-avoiding path: the scanner feeds the chase buffer directly
+            while (bulk.transferNext(buffer::write) != -1) {
+                exchange.checkTtl();
             }
-            exchange.checkTtl();
+        } else {
+            int n;
+            while ((n = part.read(copyBuffer, 0, copyBuffer.length)) != -1) {
+                if (n > 0) {
+                    buffer.write(copyBuffer, 0, n);
+                }
+                exchange.checkTtl();
+            }
         }
         buffer.completeWriter();
     }

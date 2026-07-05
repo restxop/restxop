@@ -148,7 +148,7 @@ All properties live under the `restxop.` prefix (defaults shown):
 | `limits.max-parts` | `1000` | part count bound |
 | `timeouts.exchange-ttl` | `10m` | total exchange lifetime; expired exchanges are reclaimed and their resources freed |
 | `timeouts.read-wait` | `60s` | max consumer wait for streaming progress |
-| `read-buffer-size` | `8KB` | transport scan buffer |
+| `read-buffer-size` | `64KB` | transport scan buffer |
 | `strict-multipart-resolution` | `true` | servlet resolver guard (see above) |
 | `legacy-compat.enabled` | `false` | deprecated `composite/related` interop mode |
 
