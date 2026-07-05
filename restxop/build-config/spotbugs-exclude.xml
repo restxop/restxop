@@ -54,11 +54,12 @@
     </Or>
   </Match>
 
-  <!-- Testkit suites are JUnit test code that ships in main scope by design;
-       static analysis of test idioms (single-use Random, shared fixture
-       collections) does not apply to them -->
+  <!-- Testkit suites and their capture/stub helpers are JUnit test
+       infrastructure that ships in main scope by design; static analysis of
+       test idioms (single-use Random, captured causal Throwables, shared
+       fixture collections) does not apply to them -->
   <Match>
-    <Class name="~dev\.restxop\.testkit\..*Suite.*"/>
+    <Class name="~dev\.restxop\.testkit\.(.*Suite.*|ListenerCapture.*|StubRootPartCodec.*|SpoolHygiene.*)"/>
   </Match>
 
   <!-- Testkit payload models are (de)serialized reflectively by Jackson;

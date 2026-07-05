@@ -469,7 +469,10 @@ public abstract class FailureInjectionSuite {
     protected void ttlWakesAReaderBlockedLongerThanItsReadWait() throws Exception {
         byte[] body = encodeSample(sampleContent(64 * 1024));
         int gateAt = indexOf(body, "Content-ID: <att-1>") + 1024;
-        SeverableInputStream transport = new SeverableInputStream(body, gateAt);
+        // The source trickles a byte every 150 ms: the reader keeps making
+        // progress inside its read-wait, so only the TTL can end the wait —
+        // deterministically exercising reclaim-wakes-blocked-reader
+        TricklingInputStream transport = new TricklingInputStream(body, gateAt, 150);
         ListenerCapture capture = new ListenerCapture();
         SpoolHygiene.ConnectionProbe probe = new SpoolHygiene.ConnectionProbe();
         RestxopConfig config = config().exchangeTtl(Duration.ofMillis(700))
@@ -681,6 +684,60 @@ public abstract class FailureInjectionSuite {
             System.arraycopy(data, position, b, off, n);
             position += n;
             return n;
+        }
+    }
+
+    /** Serves bytes to a gate, then trickles one byte per interval until severed. */
+    protected static final class TricklingInputStream extends InputStream {
+
+        private final byte[] data;
+        private final int gate;
+        private final long intervalMillis;
+        private int position;
+        private volatile IOException failure;
+
+        TricklingInputStream(byte[] data, int gate, long intervalMillis) {
+            this.data = data;
+            this.gate = Math.min(gate, data.length);
+            this.intervalMillis = intervalMillis;
+        }
+
+        void sever(IOException cause) {
+            failure = cause;
+        }
+
+        @Override
+        public int read() throws IOException {
+            byte[] one = new byte[1];
+            int n = read(one, 0, 1);
+            return n < 0 ? -1 : one[0] & 0xFF;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (failure != null) {
+                throw failure;
+            }
+            if (position < gate) {
+                int n = Math.min(len, gate - position);
+                System.arraycopy(data, position, b, off, n);
+                position += n;
+                return n;
+            }
+            try {
+                Thread.sleep(intervalMillis);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("interrupted while trickling", e);
+            }
+            if (failure != null) {
+                throw failure;
+            }
+            if (position >= data.length) {
+                return -1;
+            }
+            b[off] = data[position++];
+            return 1;
         }
     }
 

@@ -95,9 +95,9 @@
 - [X] T033 [US2] Complete malformed-input handling at every parse site (typed errors per wire-format §6, never NPE/hang) across `restxop/restxop-core/src/main/java/dev/restxop/core/internal/mime/` and `read/`
 - [X] T034 [US2] Limits enforcement wiring (max-root-part-bytes, max-part-header-bytes, max-parts, spool caps per-attachment/per-message) with configured-value-bearing LimitExceededException messages in core read path
 - [X] T035 [US2] End-to-end poison propagation + deadlines: drain failure wakes blocked readers with cause; read-wait deadline on every await; TTL reaper reclaims abandoned exchanges and deletes overflow files; ChaseBuffer discard mode for early-closed/abandoned attachments; emit and assert the full FR-033 event/log set (started, payload delivered, attachment consumed, bytes spooled, spool-cap breach, skipped unreferenced part, timeout, failed, closed) via the testkit listener capture, in `restxop/restxop-core/src/main/java/dev/restxop/core/internal/exchange/` + `buffer/`
-- [ ] T036 [US2] Client deferred-close release on failure/TTL paths in both starters' client integrations
+- [X] T036 [US2] Client deferred-close release on failure/TTL paths in both starters' client integrations
 - [X] T037 [P] [US2] Testkit spool-hygiene assertions (spool-directory watcher, open-connection probe helpers) in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/SpoolHygiene.java` + `ListenerCapture.java` (records ExchangeListener events for FR-033 assertions)
-- [ ] T038 [US2] SC-009 load test (100 concurrent mixed exchanges, spool-triggering sizes, zero failures/timeout violations/cross-talk), tagged `load`, in `restxop/restxop-samples/sample-server-boot4/src/test/java/LoadScenarioTest.java`
+- [X] T038 [US2] SC-009 load test (100 concurrent mixed exchanges, spool-triggering sizes, zero failures/timeout violations/cross-talk), tagged `load`, in `restxop/restxop-samples/sample-server-boot4/src/test/java/LoadScenarioTest.java`
 
 **Checkpoint**: quickstart §3 + §5 pass; SC-004/SC-009 demonstrated
 
