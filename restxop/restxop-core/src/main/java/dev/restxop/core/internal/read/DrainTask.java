@@ -28,6 +28,7 @@ import dev.restxop.core.internal.mime.PartHeaders;
 import dev.restxop.spi.SpoolStorage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -145,7 +146,7 @@ final class DrainTask implements Runnable {
                 if (attachment == null) {
                     log.warn("[exchange {}] skipping part '{}': not referenced by the payload",
                             exchange.id(), contentId);
-                    skip(part, copyBuffer);
+                    skip(part);
                     continue;
                 }
                 if (attachment.buffer().isWriterComplete()) {
@@ -192,10 +193,8 @@ final class DrainTask implements Runnable {
         buffer.completeWriter();
     }
 
-    private static void skip(InputStream part, byte[] copyBuffer) throws IOException {
-        while (part.read(copyBuffer, 0, copyBuffer.length) != -1) {
-            // discard
-        }
+    private static void skip(InputStream part) throws IOException {
+        part.transferTo(OutputStream.nullOutputStream());
     }
 
     /** Called once per attachment when its stream is exhausted or closed early. */

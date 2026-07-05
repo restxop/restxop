@@ -18,6 +18,7 @@ package dev.restxop.core.internal.mime;
 import dev.restxop.MalformedMessageException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -103,10 +104,7 @@ public final class DelimiterScanner {
     }
 
     private void drain(PartStream part) throws IOException {
-        byte[] sink = new byte[4096];
-        while (part.read(sink, 0, sink.length) != -1) {
-            // discard
-        }
+        part.transferTo(OutputStream.nullOutputStream());
     }
 
     private void drainEpilogue() throws IOException {
