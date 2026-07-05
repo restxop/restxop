@@ -7,7 +7,7 @@
   <parent>
     <groupId>dev.restxop</groupId>
     <artifactId>restxop-parent</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>restxop-spring-boot-3-starter</artifactId>
