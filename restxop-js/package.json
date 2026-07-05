@@ -26,7 +26,8 @@
     "test:browser": "vitest run --config vitest.browser.config.ts",
     "test:memory": "vitest run test/memory.test.ts",
     "check:size": "node scripts/check-bundle-size.mjs",
-    "demo:node": "node scripts/demo-node.mjs"
+    "demo:node": "node scripts/demo-node.mjs",
+    "prepublishOnly": "npm test"
   },
   "devDependencies": {
     "@vitest/browser": "^4.1.9",
