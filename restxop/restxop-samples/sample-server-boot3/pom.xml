@@ -15,7 +15,7 @@
   <description>Sample server on Spring Boot 3: serves and accepts attachment messages</description>
 
   <properties>
-    <spring-boot.version>3.2.12</spring-boot.version>
+    <spring-boot.version>4.1.0</spring-boot.version>
   </properties>
 
   <dependencyManagement>

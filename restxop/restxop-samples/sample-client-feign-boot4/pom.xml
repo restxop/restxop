@@ -15,8 +15,8 @@
   <description>Sample declarative (OpenFeign) client on Spring Boot 4: downloads and verifies a streamed attachment</description>
 
   <properties>
-    <spring-boot.version>4.0.1</spring-boot.version>
-    <spring-cloud-openfeign.version>5.0.1</spring-cloud-openfeign.version>
+    <spring-boot.version>4.1.0</spring-boot.version>
+    <spring-cloud-openfeign.version>5.0.2</spring-cloud-openfeign.version>
   </properties>
 
   <dependencyManagement>

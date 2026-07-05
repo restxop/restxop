@@ -15,7 +15,7 @@
   <description>Spring Boot 4.x starter: auto-configuration, MVC converter, RestTemplate/RestClient customizers, optional Feign support</description>
 
   <properties>
-    <spring-boot.version>4.0.1</spring-boot.version>
+    <spring-boot.version>4.1.0</spring-boot.version>
   </properties>
 
   <dependencyManagement>
@@ -61,7 +61,7 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-openfeign-core</artifactId>
-      <version>5.0.1</version>
+      <version>5.0.2</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -89,13 +89,13 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-context</artifactId>
-      <version>5.0.1</version>
+      <version>5.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-commons</artifactId>
-      <version>5.0.1</version>
+      <version>5.0.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
