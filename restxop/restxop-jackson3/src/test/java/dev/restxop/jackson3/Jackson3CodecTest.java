@@ -82,7 +82,7 @@ class Jackson3CodecTest {
 
     private final Jackson3RootPartCodec codec = new Jackson3RootPartCodec(JsonMapper.builder().build());
 
-    private static final class TestCollector implements AttachmentCollector {
+    private static class TestCollector implements AttachmentCollector {
         final Map<Attachment, String> ids = new IdentityHashMap<>();
         final List<Attachment> registered = new ArrayList<>();
 
@@ -247,5 +247,24 @@ class Jackson3CodecTest {
         // Jackson 3's own default (alphabetical ordering) must remain in
         // force on the application's mapper — the codec works on a copy
         assertEquals("{\"file\":null,\"title\":\"t\"}", appMapper.writeValueAsString(doc));
+    }
+
+    @Test
+    void legacyModeCollectorYieldsBareHrefs() {
+        Doc doc = new Doc();
+        doc.title = "legacy";
+        doc.file = Attachment.of("x".getBytes(StandardCharsets.UTF_8));
+
+        final class BareCollector extends TestCollector
+                implements dev.restxop.core.internal.write.ReferenceStyleAware {
+            @Override
+            public boolean bareReferences() {
+                return true;
+            }
+        }
+
+        String jsonOut = writeRoot(doc, new BareCollector());
+
+        assertEquals("{\"title\":\"legacy\",\"file\":{\"Include\":{\"href\":\"att-1\"}}}", jsonOut);
     }
 }

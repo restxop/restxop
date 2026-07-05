@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -60,6 +61,8 @@ public final class MessageWriter {
     private final RestxopConfig config;
     private final RootPartCodec codec;
     private final WriterIds ids;
+    private final boolean legacy;
+    private final String responseId;
 
     public MessageWriter(RestxopConfig config, RootPartCodec codec) {
         this(config, codec, WriterIds.random());
@@ -69,12 +72,31 @@ public final class MessageWriter {
         this.config = config;
         this.codec = codec;
         this.ids = ids;
+        this.legacy = config.legacyCompatEnabled();
+        this.responseId = legacy ? UUID.randomUUID().toString() : null;
     }
 
-    /** The outer Content-Type header value, canonically quoted (§1). */
+    /** The outer Content-Type header value, canonically quoted (§1; legacy §7). */
     public String contentType() {
+        if (legacy) {
+            return "composite/related; type=\"application/json\"; boundary=\"" + ids.boundary()
+                    + "\"; start=\"<mainpart>\"";
+        }
         return "multipart/related; type=\"application/json\"; boundary=\"" + ids.boundary()
                 + "\"; start=\"<" + ids.rootContentId() + ">\"";
+    }
+
+    /**
+     * The legacy {@code Response-ID} HTTP header value (wire-format §7) —
+     * present only in compat mode; client/server integrations set it on the
+     * outgoing message.
+     */
+    public Optional<String> responseIdHeader() {
+        return Optional.ofNullable(responseId);
+    }
+
+    private String rootContentId() {
+        return legacy ? "mainpart" : ids.rootContentId();
     }
 
     /**
@@ -87,7 +109,7 @@ public final class MessageWriter {
         Collector collector = new Collector();
 
         writeAscii(out, "\r\n--" + ids.boundary() + "\r\n"
-                + "Content-ID: <" + ids.rootContentId() + ">\r\n"
+                + "Content-ID: <" + rootContentId() + ">\r\n"
                 + "Content-Type: application/json\r\n"
                 + "Content-Transfer-Encoding: binary\r\n\r\n");
         try {
@@ -101,14 +123,26 @@ public final class MessageWriter {
             exchange.checkTtl();
             Attachment attachment = registered.attachment();
             StringBuilder headers = new StringBuilder(128)
-                    .append("\r\n--").append(ids.boundary()).append("\r\n")
-                    .append("Content-ID: <").append(registered.contentId()).append(">\r\n")
-                    .append("Content-Type: ")
+                    .append("\r\n--").append(ids.boundary()).append("\r\n");
+            if (legacy) {
+                // §7: bare (unbracketed) identifier, legacy disposition shape
+                headers.append("Content-ID: ").append(registered.contentId()).append("\r\n");
+            } else {
+                headers.append("Content-ID: <").append(registered.contentId()).append(">\r\n");
+            }
+            headers.append("Content-Type: ")
                     .append(attachment.contentType().orElse("application/octet-stream"))
                     .append("\r\n");
-            attachment.filename().ifPresent(filename ->
+            attachment.filename().ifPresent(filename -> {
+                if (legacy) {
+                    headers.append("Content-Disposition: attachment;name=\"")
+                            .append(filename.replace("\\", "\\\\").replace("\"", "\\\""))
+                            .append("\"\r\n");
+                } else {
                     headers.append("Content-Disposition: attachment; ")
-                            .append(dispositionFilename(filename)).append("\r\n"));
+                            .append(dispositionFilename(filename)).append("\r\n");
+                }
+            });
             headers.append("Content-Transfer-Encoding: binary\r\n\r\n");
             writeAscii(out, headers.toString());
 
@@ -168,7 +202,12 @@ public final class MessageWriter {
     }
 
     /** Identity-map collector: one part and one Content-ID per instance (FR-012). */
-    private final class Collector implements AttachmentCollector {
+    private final class Collector implements AttachmentCollector, ReferenceStyleAware {
+
+        @Override
+        public boolean bareReferences() {
+            return legacy;
+        }
 
         private final Map<Attachment, String> byIdentity = new IdentityHashMap<>();
         private final List<RegisteredAttachment> ordered = new ArrayList<>();

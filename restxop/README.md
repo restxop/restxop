@@ -240,11 +240,25 @@ For migration windows against legacy `composite/related` deployments,
   bare-UUID identifiers) so legacy readers behave no worse than
   legacy-to-legacy.
 
-Known legacy-reader defects are theirs and remain: legacy consumers append
-two bytes to attachment content (their trailing-CRLF defect) and hang on
-zero-attachment messages — always include at least one attachment when
-targeting a legacy reader. The mode is off by default and documented as
-deprecated; new deployments must use the standard format.
+In compat mode the server also emits the legacy `Response-ID` HTTP header,
+and MVC mappings that must accept legacy requests should use
+`consumes = "composite/related"` (or omit `consumes`).
+
+**Migration caveats.** Known legacy-reader defects are theirs and remain:
+legacy consumers append two bytes to attachment content (their
+trailing-CRLF defect) and hang on zero-attachment messages — always include
+at least one attachment when targeting a legacy reader, and expect the
++2-byte artifact on the legacy side of a mixed exchange. Reading
+legacy-produced messages with restxop is byte-exact (the legacy *writer*
+framed correctly; only its reader was defective), verified against captured
+legacy wire fixtures (`restxop-testkit`, tag `legacy`).
+
+**Live interop check.** To verify against a running legacy deployment
+during a migration window: enable `restxop.legacy-compat.enabled=true` on a
+restxop client, call a legacy endpoint that returns a payload with at least
+one attachment, and compare the attachment checksum against the source.
+The fixture-driven `legacy` test group covers the same wire shapes
+offline: `mvn -pl restxop-testkit -Dgroups=legacy verify`.
 
 ## Testing your own extensions
 

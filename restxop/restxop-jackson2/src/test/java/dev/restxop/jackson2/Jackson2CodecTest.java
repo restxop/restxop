@@ -82,7 +82,7 @@ class Jackson2CodecTest {
     private final Jackson2RootPartCodec codec = new Jackson2RootPartCodec(new ObjectMapper());
 
     /** Sequential collector with instance-identity awareness for assertions. */
-    private static final class TestCollector implements AttachmentCollector {
+    private static class TestCollector implements AttachmentCollector {
         final Map<Attachment, String> ids = new IdentityHashMap<>();
         final List<Attachment> registered = new ArrayList<>();
 
@@ -248,5 +248,24 @@ class Jackson2CodecTest {
         // must not have been reconfigured behind the app's back
         doc.file = null;
         assertEquals("{\"title\":\"t\",\"file\":null}", appMapper.writeValueAsString(doc));
+    }
+
+    @Test
+    void legacyModeCollectorYieldsBareHrefs() {
+        Doc doc = new Doc();
+        doc.title = "legacy";
+        doc.file = Attachment.of("x".getBytes(StandardCharsets.UTF_8));
+
+        final class BareCollector extends TestCollector
+                implements dev.restxop.core.internal.write.ReferenceStyleAware {
+            @Override
+            public boolean bareReferences() {
+                return true;
+            }
+        }
+
+        String jsonOut = writeRoot(doc, new BareCollector());
+
+        assertEquals("{\"title\":\"legacy\",\"file\":{\"Include\":{\"href\":\"att-1\"}}}", jsonOut);
     }
 }

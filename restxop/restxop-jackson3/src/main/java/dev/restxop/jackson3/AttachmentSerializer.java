@@ -38,10 +38,12 @@ final class AttachmentSerializer extends ValueSerializer<Attachment> {
             return;
         }
         String contentId = collector.register(value);
+        boolean bare = collector instanceof dev.restxop.core.internal.write.ReferenceStyleAware aware
+                && aware.bareReferences();
         gen.writeStartObject(value);
         gen.writeName("Include");
         gen.writeStartObject();
-        gen.writeStringProperty("href", "cid:" + contentId);
+        gen.writeStringProperty("href", bare ? contentId : "cid:" + contentId);
         gen.writeEndObject();
         gen.writeEndObject();
     }

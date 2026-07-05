@@ -40,10 +40,12 @@ final class AttachmentSerializer extends JsonSerializer<Attachment> {
                             + "serialization context (write payloads through the restxop converter)");
         }
         String contentId = collector.register(value);
+        boolean bare = collector instanceof dev.restxop.core.internal.write.ReferenceStyleAware aware
+                && aware.bareReferences();
         gen.writeStartObject(value);
         gen.writeFieldName("Include");
         gen.writeStartObject();
-        gen.writeStringField("href", "cid:" + contentId);
+        gen.writeStringField("href", bare ? contentId : "cid:" + contentId);
         gen.writeEndObject();
         gen.writeEndObject();
     }

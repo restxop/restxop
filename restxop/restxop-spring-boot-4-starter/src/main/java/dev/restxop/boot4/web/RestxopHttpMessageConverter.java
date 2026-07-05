@@ -114,6 +114,9 @@ public class RestxopHttpMessageConverter implements GenericHttpMessageConverter<
             HttpOutputMessage outputMessage) throws IOException {
         MessageWriter writer = runtime.newWriter();
         outputMessage.getHeaders().set("Content-Type", writer.contentType());
+        // Legacy compat mode (wire-format §7) carries a Response-ID header
+        writer.responseIdHeader().ifPresent(
+                id -> outputMessage.getHeaders().set("Response-ID", id));
         if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
             streaming.setBody(body -> writeBody(writer, payload, body));
         } else {

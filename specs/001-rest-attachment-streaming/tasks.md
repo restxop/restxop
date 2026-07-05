@@ -155,12 +155,12 @@
 
 ### Tests for User Story 5 (write FIRST)
 
-- [ ] T051 [US5] Import captured legacy-format fixtures from `specs/001-rest-attachment-streaming/legacy-fixtures/message*.http` into `restxop/restxop-testkit/src/main/resources/fixtures/legacy/`; legacy suite (tag `legacy`): rejected as unsupported media type when compat off; byte-exact payload+attachment read when on, in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/LegacyCompatSuite.java`
+- [X] T051 [US5] Import captured legacy-format fixtures from `specs/001-rest-attachment-streaming/legacy-fixtures/message*.http` into `restxop/restxop-testkit/src/main/resources/fixtures/legacy/`; legacy suite (tag `legacy`): rejected as unsupported media type when compat off; byte-exact payload+attachment read when on, in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/LegacyCompatSuite.java`
 
 ### Implementation for User Story 5
 
-- [ ] T052 [US5] Compat read tolerances (`composite/related` media type acceptance, unbracketed/bare identifiers — §4 normalization already covers, absent Disposition) gated by `legacy-compat.enabled` in core + starters' media-type registration
-- [ ] T053 [US5] Compat write mode per wire-format §7 (composite/related params, `<mainpart>` root, bare-UUID Content-ID/href, `Response-ID` header, legacy Disposition shape) in `MessageWriter` + codecs
+- [X] T052 [US5] Compat read tolerances (`composite/related` media type acceptance, unbracketed/bare identifiers — §4 normalization already covers, absent Disposition) gated by `legacy-compat.enabled` in core + starters' media-type registration
+- [X] T053 [US5] Compat write mode per wire-format §7 (composite/related params, `<mainpart>` root, bare-UUID Content-ID/href, `Response-ID` header, legacy Disposition shape) in `MessageWriter` + codecs
 - [ ] T054 [US5] Live interop verification (tagged `legacy`, manual-friendly): new client in compat mode against the archived legacy sample server (developer-local workspace outside this repository); document results + migration caveats (legacy zero-attachment hang, +2-byte reader defect) in README migration section
 
 **Checkpoint**: quickstart §7 passes; migration story documented
