@@ -1,17 +1,24 @@
 <!--
 Sync Impact Report
 ==================
-Version change: (template, unversioned) → 1.0.0
-Rationale: Initial ratification. All template placeholders replaced with
-concrete principles agreed during the reverse-engineering analysis of the
-legacy internal implementation (2026-07-04).
+Version change: 1.0.0 → 1.1.0 (MINOR — materially expanded guidance)
+Rationale: Feature 002 introduces the project's first non-JVM deliverable
+(the restxop-js browser/Node client). The Additional Constraints section
+was written against JVM deliverables only; this amendment scopes those
+constraints explicitly and adds platform constraints for Web/JavaScript
+deliverables, plus one clarifying sentence in Principle I distinguishing
+the eager-spooling service tier from pull-based consuming edges.
 
-Modified principles: n/a (initial adoption)
-Added sections:
-- Core Principles (I–VI)
-- Additional Constraints (technology & compatibility)
-- Development Workflow & Quality Gates
-- Governance
+Modified principles:
+- I. Streaming-First, Memory-Bounded — clarifying sentence added (tiers
+  without disk access satisfy the memory bound via native pull
+  backpressure instead of spooling); no requirement removed or weakened.
+Modified sections:
+- Additional Constraints — restructured into "All deliverables",
+  "JVM deliverables", and "Web/JavaScript deliverables" subsections;
+  every pre-existing constraint retained verbatim under its scope.
+- Development Workflow & Quality Gates — PR gate wording generalized to
+  cover every affected deliverable's test matrix.
 Removed sections: none
 
 Templates requiring updates:
@@ -38,7 +45,11 @@ either the write or read path. The read path MUST hand the caller a usable
 object graph while attachment bytes are still in flight, with attachment
 streams consumable lazily. When a consumer falls behind the producer, excess
 bytes MUST spool to disk within configurable bounds (max spool size per
-attachment and per message). Attachment content MUST be reproduced byte-exactly:
+attachment and per message). Deliverables running where disk spooling is
+unavailable or inappropriate (e.g., in-browser consuming edges) satisfy the
+memory bound instead through pull-based consumption paced by the platform's
+native backpressure — never through unbounded buffering. Attachment content
+MUST be reproduced byte-exactly:
 what the sender streamed is what the receiver reads — no added or dropped
 bytes, verified by wire-level tests (Principle VI).
 
@@ -132,6 +143,21 @@ fidelity.*
 
 ## Additional Constraints
 
+### All deliverables
+
+- **Open source hygiene**: no originating-organization internal coordinates,
+  hosts, or identifiers in published artifacts; Apache-2.0 licensing with
+  header compliance; semantic versioning of released artifacts; README, API
+  documentation, and runnable samples maintained per release.
+- **Structural bounds**: header, root-part, and part-count sizes MUST be
+  bounded with documented, configurable defaults to prevent
+  memory-exhaustion attacks on any tier that parses incoming messages.
+- **Conformance authority**: the shared byte-exact wire fixtures are the
+  single conformance corpus; every deliverable that reads or writes the wire
+  format MUST verify against them (Principle VI).
+
+### JVM deliverables
+
 - **Language/runtime**: Java 17 baseline (Boot 3.x and 4.x common ground);
   build MUST also pass on the latest LTS.
 - **Namespaces**: `jakarta.activation` only; no `javax.*` EE imports.
@@ -143,20 +169,31 @@ fidelity.*
   Producer/consumer signaling MUST be event-driven (notify on data
   availability), not poll/sleep based.
 - **Security**: spool files MUST be created with restrictive permissions in a
-  configurable directory, deleted on close/failure; header and root-part sizes
-  MUST be bounded to prevent memory-exhaustion attacks on the server read path.
-- **Open source hygiene**: no originating-organization internal coordinates,
-  hosts, or identifiers in published artifacts; Apache-2.0 licensing with header compliance; semantic
-  versioning of released artifacts; README, javadoc on public API, and runnable
-  server/client/Feign samples maintained per release.
+  configurable directory, deleted on close/failure.
+
+### Web/JavaScript deliverables
+
+- **Platform**: current evergreen browsers and active Node LTS lines from a
+  single codebase; published with type definitions.
+- **Footprint**: zero runtime dependencies; a documented bundle-size budget
+  enforced by the build.
+- **Streaming model**: consumption is pull-based over the platform's native
+  streaming primitives, honoring their backpressure; cancellation flows
+  through the platform's standard abort mechanism; no disk access; no
+  busy-wait or poll/sleep loops on any path.
+- **Chunk handling**: parsing MUST operate on byte chunks as delivered (no
+  whole-response buffering on the read path); per-byte processing is
+  prohibited on the content hot path.
 
 ## Development Workflow & Quality Gates
 
 - All work flows through Spec Kit: constitution → specify → clarify → plan →
   tasks → implement; the spec is the source of truth for protocol behavior,
   and wire-format changes require a spec amendment before code.
-- Every PR MUST pass: full test suite on both starters (Boot 3.x and 4.x
-  matrices), coverage thresholds, and static analysis with no new warnings.
+- Every PR MUST pass: the full test suite for every affected deliverable
+  (JVM: both starter matrices on Boot 3.x and 4.x; Web/JavaScript: the
+  conformance suite in a browser engine and under Node LTS), coverage
+  thresholds, and static analysis with no new warnings.
 - Public API changes require javadoc and README/sample updates in the same
   change.
 - Milestone check-ins with the project owner are required at each Spec Kit
@@ -179,4 +216,4 @@ justification in the plan's Complexity Tracking section or the plan is
 rejected. Reviews of implementation PRs verify the gates in Development
 Workflow & Quality Gates.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-04 | **Last Amended**: 2026-07-04
+**Version**: 1.1.0 | **Ratified**: 2026-07-04 | **Last Amended**: 2026-07-05
