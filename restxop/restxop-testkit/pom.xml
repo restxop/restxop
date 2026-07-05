@@ -18,6 +18,9 @@
     <!-- The testkit's suites execute (and are covered) inside the starter test
          modules; its own module tests only exercise the fixture plumbing -->
     <restxop.coverage.min>0.40</restxop.coverage.min>
+    <!-- Same rationale for Sonar: analyze issues, don't demand coverage of
+         what is itself test tooling -->
+    <sonar.coverage.exclusions>**/*</sonar.coverage.exclusions>
   </properties>
 
   <build>
