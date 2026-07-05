@@ -136,3 +136,11 @@ the server's source.
 Follow `restxop-js/README.md` only, from a fresh Vite app: install the
 package, call `restxopFetch`, render payload fields, stream the attachment.
 Target: working in < 15 minutes.
+
+> **Validated 2026-07-05** (T029): a fresh Vite app scaffolded from
+> nothing, with `main.ts` written strictly from the README's reading
+> section (only substitution: `npm install` from the local path, as the
+> package is not yet published), rendered the payload title and streamed
+> the full 4 MiB attachment byte-count on first run — scripted end to end
+> in **21 s**, far under the 15-minute human budget. No README gaps found.
+> **SC-005 PASS.**

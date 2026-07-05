@@ -140,3 +140,28 @@ endpoint plus documented CORS headers (FR-013/FR-014).
 ## Complexity Tracking
 
 No constitution violations to justify — table intentionally empty.
+
+## Post-Implementation Constitution Review (2026-07-05)
+
+*Recorded at feature completion (T030); all 30 tasks done, all gates green.*
+
+| # | Principle | Verdict | Verification evidence |
+|---|-----------|---------|----------------------|
+| I | Streaming-First, Memory-Bounded | **PASS** | SC-003 measured: 100 MiB generated message through a pass-through consumer with heap growth < 48 MiB bound (actual well below); payload delivered at root arrival (27 ms browser / 50 ms Node, transfer completing seconds later); in-order path retains nothing (`memory.test.ts`) |
+| II | Standards Alignment Over Invention | **PASS** | Full corpus (canonical + fidelity + malformed) byte-exact at 8 chunk sizes in Node (202 tests) and Chromium (199); RFC 6266/5987 `filename*` decoded and emitted; §4 id normalization; CRLF and bare-LF framing accepted, CRLF emitted |
+| III | Framework-Agnostic Core, Thin Adapters | **PASS** | `scanner`/`headers`/`session`/`handle`/`write` import only WHATWG streams + `Uint8Array`; fetch appears solely in `fetch.ts` (~40 lines); React only in the unpublished demo |
+| IV | Serializer-Driven Discovery | **PASS** | Read: tree traversal substituting single-key `Include` stubs (nested/array/null/duplicate all fixture-verified). Write: identity-dedup tree walk emitting one part per source |
+| V | No Indefinite Blocking, Deterministic Cleanup | **PASS** | SC-004 measured: aborts observed to cancel the source < 1 s in every phase; read-idle expiry typed and prompt; first-failure-wins at every error site; reader lock released after cancellation (no dangling locks, asserted per failure family) |
+| VI | Test-First, Wire-Level Verification | **PASS** | Every phase wrote its suite first (T018 red before T019, 5 failures driving the hardening); 402 assertions across engines; live cross-implementation round trips: Java writer → JS reader (SC-001) and JS writer → Java reader (SC-007, 25 MiB, digest-exact) |
+
+**Additional Constraints (v1.1.0)**: zero runtime dependencies (enforced by
+hygiene scan) ✓; bundle 9,200 / 10,240 bytes gzip (SC-006 gate in `npm
+test` and CI) ✓; single codebase Node 20+/evergreen (identical suites both
+engines) ✓; pull-based, no disk, no poll/sleep ✓; structural bounds
+configurable with documented defaults (README options table) ✓; Apache-2.0
+headers + neutral coordinates (SC-008 hygiene) ✓.
+
+**Success criteria**: SC-001 (quickstart §5), SC-002 (§1/§2), SC-003 (§4),
+SC-004 (§3), SC-005 (§8: fresh-app walkthrough from README only, scripted
+in 21 s), SC-006 (size gate), SC-007 (§6) — all validated and recorded in
+quickstart.md. **Violations: none.**

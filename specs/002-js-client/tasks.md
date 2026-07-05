@@ -136,10 +136,10 @@
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T027 [P] SC-003 bounded-memory test: `npm run test:memory` streams a generated 100 MB message through a pass-through consumer asserting empty retention and bounded working state, in `restxop-js/test/memory.test.ts`
-- [ ] T028 [P] Package README (`restxop-js/README.md`): install, payload-first consumption, streaming/whole-content/skip, cancellation, error handling, options table, CORS prerequisites for restxop services, upload notes and v1 buffering caveat, demo instructions
-- [ ] T029 SC-005 adoption walkthrough: from a fresh Vite app following only the README to a rendered payload + streamed attachment in < 15 minutes; fix documentation gaps found
-- [ ] T030 Final gates: SC-006 size budget green in CI, hygiene scan over `restxop-js/`, full quickstart §1–§8 executed, and the post-implementation constitution review recorded in `specs/002-js-client/plan.md`
+- [X] T027 [P] SC-003 bounded-memory test: `npm run test:memory` streams a generated 100 MB message through a pass-through consumer asserting empty retention and bounded working state, in `restxop-js/test/memory.test.ts`
+- [X] T028 [P] Package README (`restxop-js/README.md`): install, payload-first consumption, streaming/whole-content/skip, cancellation, error handling, options table, CORS prerequisites for restxop services, upload notes and v1 buffering caveat, demo instructions
+- [X] T029 SC-005 adoption walkthrough: from a fresh Vite app following only the README to a rendered payload + streamed attachment in < 15 minutes; fix documentation gaps found
+- [X] T030 Final gates: SC-006 size budget green in CI, hygiene scan over `restxop-js/`, full quickstart §1–§8 executed, and the post-implementation constitution review recorded in `specs/002-js-client/plan.md`
 
 ---
 
