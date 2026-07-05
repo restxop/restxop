@@ -161,7 +161,7 @@
 
 - [X] T052 [US5] Compat read tolerances (`composite/related` media type acceptance, unbracketed/bare identifiers — §4 normalization already covers, absent Disposition) gated by `legacy-compat.enabled` in core + starters' media-type registration
 - [X] T053 [US5] Compat write mode per wire-format §7 (composite/related params, `<mainpart>` root, bare-UUID Content-ID/href, `Response-ID` header, legacy Disposition shape) in `MessageWriter` + codecs
-- [ ] T054 [US5] Live interop verification (tagged `legacy`, manual-friendly): new client in compat mode against the archived legacy sample server (developer-local workspace outside this repository); document results + migration caveats (legacy zero-attachment hang, +2-byte reader defect) in README migration section
+- [X] T054 [US5] Live interop verification (tagged `legacy`, manual-friendly): new client in compat mode against the archived legacy sample server (developer-local workspace outside this repository); document results + migration caveats (legacy zero-attachment hang, +2-byte reader defect) in README migration section
 
 **Checkpoint**: quickstart §7 passes; migration story documented
 

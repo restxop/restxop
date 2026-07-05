@@ -260,6 +260,15 @@ one attachment, and compare the attachment checksum against the source.
 The fixture-driven `legacy` test group covers the same wire shapes
 offline: `mvn -pl restxop-testkit -Dgroups=legacy verify`.
 
+*Verified 2026-07-05 against a live archived legacy sample server (Java
+11):* a compat-mode restxop client (Boot 3 starter, one property flipped)
+consumed the legacy `composite/related` response byte-exactly — a
+13,264-byte PDF attachment with a SHA-256 identical to the raw wire
+capture, the typed payload usable at 50 ms, and the legacy
+`name` disposition parameter surfaced as the filename. The legacy sample
+exposes no receiving endpoint, so the write direction is verified against
+the captured fixtures and the §7 shape assertions rather than live.
+
 ## Testing your own extensions
 
 `restxop-testkit` (test scope) ships the wire fixtures and abstract
