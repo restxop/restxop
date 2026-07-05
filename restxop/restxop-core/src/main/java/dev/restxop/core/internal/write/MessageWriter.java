@@ -125,7 +125,7 @@ public final class MessageWriter {
             exchange.checkTtl();
             Attachment attachment = registered.attachment();
             StringBuilder headers = new StringBuilder(128)
-                    .append(CRLF + "--").append(ids.boundary()).append(CRLF);
+                    .append(CRLF).append("--").append(ids.boundary()).append(CRLF);
             if (legacy) {
                 // §7: bare (unbracketed) identifier, legacy disposition shape
                 headers.append("Content-ID: ").append(registered.contentId()).append(CRLF);
