@@ -29,10 +29,11 @@
     "demo:node": "node scripts/demo-node.mjs"
   },
   "devDependencies": {
-    "@vitest/browser": "^3.2.0",
+    "@vitest/browser": "^4.1.9",
+    "@vitest/browser-playwright": "^4.1.9",
     "playwright": "^1.49.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.2.0"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   },
   "repository": {
     "type": "git",
