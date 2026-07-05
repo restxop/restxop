@@ -38,7 +38,7 @@ if [ -n "$HITS" ]; then
 fi
 
 echo "== hygiene: Maven coordinates"
-ALLOWED_GROUPS='dev\.restxop|org\.junit\.jupiter|org\.springframework|org\.springframework\.boot|org\.springframework\.cloud|com\.fasterxml\.jackson.*|tools\.jackson.*|org\.slf4j|org\.junit|jakarta\.activation|org\.jacoco|com\.github\.spotbugs|com\.mycila|org\.apache\.maven\.plugins'
+ALLOWED_GROUPS='dev\.restxop|org\.junit\.jupiter|org\.springframework|org\.springframework\.boot|org\.springframework\.cloud|com\.fasterxml\.jackson.*|tools\.jackson.*|org\.slf4j|org\.junit|jakarta\.activation|org\.jacoco|com\.github\.spotbugs|com\.mycila|org\.apache\.maven\.plugins|org\.sonarsource\.scanner\.maven'
 GHITS=$(grep -RhoE '<groupId>[^<]+</groupId>' --include='pom.xml' --exclude-dir=target "$ROOT" \
       | sed -E 's#</?groupId>##g' \
       | grep -vE "^(${ALLOWED_GROUPS})$" || true)
@@ -53,7 +53,7 @@ HHITS=$(grep -RhoE 'https?://[a-zA-Z0-9.-]+' \
         --include='*.java' --include='*.xml' --include='*.md' --include='*.properties' \
         --exclude-dir=target "$ROOT" \
       | sed -E 's#https?://##; s#/.*##' \
-      | grep -vE '^(www\.apache\.org|maven\.apache\.org|cwiki\.apache\.org|restxop\.dev|localhost|127\.0\.0\.1|host|javadoc\.io|repo\.maven\.apache\.org|github\.com|search\.maven\.org|www\.w3\.org)$' || true)
+      | grep -vE '^(www\.apache\.org|maven\.apache\.org|cwiki\.apache\.org|restxop\.dev|localhost|127\.0\.0\.1|host|javadoc\.io|repo\.maven\.apache\.org|github\.com|search\.maven\.org|www\.w3\.org|sonarcloud\.io)$' || true)
 if [ -n "$HHITS" ]; then
   echo "non-allowlisted hosts found:"
   echo "$HHITS" | sort -u
