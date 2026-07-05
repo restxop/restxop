@@ -27,6 +27,8 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
           cache: maven
+      - name: Hygiene check (SC-008)
+        run: restxop/build-config/check-hygiene.sh
       - name: Build and verify
         run: mvn -B -ntp -f restxop/pom.xml verify
 

@@ -128,3 +128,31 @@ per-generation client code living inside starters and Feign via
 ## Complexity Tracking
 
 No constitution violations to justify — table intentionally empty.
+
+## Post-Implementation Constitution Review (T060, 2026-07-05)
+
+*Re-evaluation of the Constitution Check gate table against the completed
+implementation (commits 5bf8f50..HEAD, all 60 tasks done). Verdicts recorded
+per the constitution's compliance-review requirement.*
+
+| # | Principle | Verdict | Post-implementation evidence |
+|---|-----------|---------|------------------------------|
+| I | Streaming-First, Memory-Bounded | **PASS** | 1 GB round-trips live in both directions on both generations with 256 MB heaps (quickstart §2 executed; SC-001/SC-002 acceptance test, payload at ~90 ms); write path proven never-fully-buffered (bounded in-flight assertion); chase-buffer spill/caps enforced with tests; byte-exactness checksum-verified across every suite (SC-003) |
+| II | Standards Alignment Over Invention | **PASS** | Wire behavior pinned byte-for-byte by canonical fixtures; CRLF-owned-by-delimiter and boundary-like-content cases green incl. the adversarial legacy capture; RFC 6266/5987 filename*; `composite/related` only behind the off-by-default deprecated toggle; resolver conflict solved by the strict-compliance guard (T047), coexistence proven with servlet multipart enabled |
+| III | Framework-Agnostic Core, Thin Adapters | **PASS** | core depends on slf4j-api only (hygiene scan verifies import roots); Jackson 2/3 isolated in adapter modules; one conformance suite runs identically in both starters; CrossGenerationSuite proves byte-identical output and identical error surfaces (SC-005); RestTemplate/RestClient/Feign integrations shipped as library code with deferred close verified under failure/TTL |
+| IV | Serializer-Driven Discovery | **PASS** | Discovery via Attachment (de)serializers + context attributes; rich-graph fidelity suite covers nested/collection/map/inherited/null through real Jackson traversal on both generations; identity-map dedup and shared-instance resolution verified end-to-end; no reflection field scanning exists |
+| V | No Indefinite Blocking, Deterministic Cleanup | **PASS** | 26-case failure-injection suite: every blocked operation ends within its deadline (+10% margin asserted), already-blocked readers woken by poison/TTL, zero residual spool files and released connections asserted per case; live TTL release of an abandoned client response proven in both starters; no Thread.isAlive anywhere |
+| VI | Test-First, Wire-Level Verification | **PASS** | Every wire-behavior task landed tests-first (red confirmed before implementation); 200+ tests incl. tagged failure/fidelity/legacy/load/stress/perf groups; 10k-iteration chase-buffer stress; coverage gates non-zero and passing (core 82%, codecs 91%, starters ~82%, testkit 52%); the tuning-pass header regression was caught by the failure suite — the gate working as intended |
+
+**Additional Constraints**: Java 17 release ✓ (CI 17/25); jakarta-only ✓;
+`AutoConfiguration.imports` ✓ (two auto-configs per starter); buffered/bulk
+I/O ✓ (anchor-scan + clean-prefix cache + BulkTransfer drain path, SC-006
+ratio ~1.6 vs the 2.0 bound); event-driven signaling ✓ (waiter-aware
+lock/condition, no poll/sleep); spool permissions/deletion ✓ (owner-only,
+hygiene-asserted deletion on every outcome); OSS hygiene ✓ (allowlist scan
+in CI, private denylist zero hits, Apache-2.0 headers enforced, README +
+javadoc gate + runnable samples for server/client/Feign × both generations).
+
+**Deviations**: none. Wire format v1 unchanged from contracts/wire-format.md;
+the single tuned default (`read-buffer-size` 8 KiB → 64 KiB, T055) is
+recorded in the contract table and README.

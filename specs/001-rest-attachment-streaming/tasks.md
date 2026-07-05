@@ -170,11 +170,11 @@
 ## Phase 8: Polish & Cross-Cutting Concerns
 
 - [X] T055 [P] SC-006 throughput harness (restxop vs plain streamed HTTP, 100 MB loopback, tag `perf`) in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/ThroughputHarness.java` + tuning pass (read-buffer/window sizes, bulk paths) if below 50%
-- [ ] T056 [P] Javadoc for all public packages (`dev.restxop`, `dev.restxop.spi`, starter public types); exclude `core.internal`; enforce via javadoc plugin in `restxop/pom.xml`
-- [ ] T057 OSS hygiene sweep: no originating-organization internal coordinates/hosts/identifiers anywhere under `restxop/` (scripted denylist maintained outside the published repository); Apache-2.0 headers everywhere; SC-008 check scripted in CI
-- [ ] T058 Coverage-gate verification (non-zero thresholds enforced per module) and static-analysis-clean confirmation in `restxop/pom.xml` + CI
-- [ ] T059 Execute full quickstart.md §1–§8 end-to-end on both generations; fix anything found
-- [ ] T060 Final constitution compliance review against plan.md gate table (I–VI + Additional Constraints); record verdicts in `specs/001-rest-attachment-streaming/plan.md` post-implementation note
+- [X] T056 [P] Javadoc for all public packages (`dev.restxop`, `dev.restxop.spi`, starter public types); exclude `core.internal`; enforce via javadoc plugin in `restxop/pom.xml`
+- [X] T057 OSS hygiene sweep: no originating-organization internal coordinates/hosts/identifiers anywhere under `restxop/` (scripted denylist maintained outside the published repository); Apache-2.0 headers everywhere; SC-008 check scripted in CI
+- [X] T058 Coverage-gate verification (non-zero thresholds enforced per module) and static-analysis-clean confirmation in `restxop/pom.xml` + CI
+- [X] T059 Execute full quickstart.md §1–§8 end-to-end on both generations; fix anything found
+- [X] T060 Final constitution compliance review against plan.md gate table (I–VI + Additional Constraints); record verdicts in `specs/001-rest-attachment-streaming/plan.md` post-implementation note
 
 ---
 

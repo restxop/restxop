@@ -192,6 +192,26 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.11.2</version>
+        <configuration>
+          <!-- Public API only: internal packages carry no doc guarantee -->
+          <excludePackageNames>dev.restxop.core.internal:dev.restxop.core.internal.*</excludePackageNames>
+          <doclint>all,-missing</doclint>
+          <failOnWarnings>true</failOnWarnings>
+          <quiet>true</quiet>
+        </configuration>
+        <executions>
+          <execution>
+            <id>javadoc-check</id>
+            <phase>verify</phase>
+            <goals><goal>javadoc</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <version>${license-plugin.version}</version>
