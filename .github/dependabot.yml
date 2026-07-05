@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    # Majors are deliberate work: the reactor intentionally maintains
+    # old-major baselines (Boot 3 starter, Jackson 2 codec), which a
+    # blanket "latest everything" bump would break by design
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       dependencies:
         patterns:
