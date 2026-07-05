@@ -65,6 +65,12 @@
     <jacoco.version>0.8.13</jacoco.version>
     <spotbugs.version>4.9.3.0</spotbugs.version>
     <license-plugin.version>4.6</license-plugin.version>
+    <sonar-plugin.version>5.7.0.6970</sonar-plugin.version>
+
+    <sonar.organization>restxop</sonar.organization>
+    <sonar.projectKey>restxop_restxop</sonar.projectKey>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencyManagement>
@@ -250,6 +256,11 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>${sonar-plugin.version}</version>
+      </plugin>
     </plugins>
   </build>
 
@@ -263,6 +274,14 @@
       </activation>
       <properties>
         <excludedGroups/>
+      </properties>
+    </profile>
+    <!-- Analysis against a local SonarQube: mvn -Plocal-sonar sonar:sonar -->
+    <profile>
+      <id>local-sonar</id>
+      <properties>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.projectKey>restxop_restxop</sonar.projectKey>
       </properties>
     </profile>
   </profiles>

@@ -16,12 +16,16 @@ jobs:
     if: github.event_name != 'schedule'
     name: verify (JDK ${{ matrix.java }})
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # dependency-graph submission
     strategy:
       fail-fast: false
       matrix:
         java: ["17", "25"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for Sonar blame relevancy
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -33,6 +37,26 @@ jobs:
         # Static analysis is pinned to the JDK 17 leg: SpotBugs cannot
         # parse newer class-file versions
         run: mvn -B -ntp -f restxop/pom.xml verify ${{ matrix.java != '17' && '-Dspotbugs.skip=true' || '' }}
+      - name: SonarCloud scan
+        # JDK 17 leg only; skipped on forked PRs and until SONAR_TOKEN exists
+        if: >-
+          matrix.java == '17' &&
+          (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "SONAR_TOKEN not configured — skipping analysis"
+            exit 0
+          fi
+          mvn -B -ntp -f restxop/pom.xml sonar:sonar \
+            -Dsonar.scm.revision=${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Update dependency graph
+        if: matrix.java == '17' && github.event_name == 'push'
+        uses: advanced-security/maven-dependency-submission-action@v5
+        with:
+          directory: restxop
 
   js:
     if: github.event_name != 'schedule'
