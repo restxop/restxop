@@ -126,6 +126,11 @@ npm run demo:node      # small script: fetches /document, prints payload, checks
 **Expected**: payload printed before transfer completes; checksum matches
 the server's source.
 
+> **Validated 2026-07-05** (T026, Node 24 against the boot4 sample server):
+> payload printed at 50 ms, 32 MiB transfer complete at 231 ms; SHA-256
+> `bd184fe1…80c4907` — identical to the digest the Chromium demo produced
+> for the same document (browser parity). **US5 PASS.**
+
 ## 8. Docs / adoption check (SC-005)
 
 Follow `restxop-js/README.md` only, from a fresh Vite app: install the

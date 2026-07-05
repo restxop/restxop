@@ -128,7 +128,7 @@
 
 **Independent Test**: quickstart.md §7.
 
-- [ ] T026 [US5] Node consumption script `restxop-js/scripts/demo-node.mjs` (`npm run demo:node`): fetch `/document` from the sample server, print payload fields before transfer completes, checksum the PDF; plus a CI-friendly variant asserting parity with the browser conformance results (suites already run under Node — this closes the real-HTTP loop)
+- [X] T026 [US5] Node consumption script `restxop-js/scripts/demo-node.mjs` (`npm run demo:node`): fetch `/document` from the sample server, print payload fields before transfer completes, checksum the PDF; plus a CI-friendly variant asserting parity with the browser conformance results (suites already run under Node — this closes the real-HTTP loop)
 
 **Checkpoint**: quickstart §7 passes
 
