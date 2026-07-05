@@ -60,6 +60,32 @@ if [ -n "$HHITS" ]; then
   FAIL=1
 fi
 
+echo "== hygiene: restxop-js zero-dependency + neutral coordinates"
+JSROOT="$ROOT/../restxop-js"
+if [ -d "$JSROOT" ]; then
+  # Zero runtime dependencies: no bare (non-relative, non-node:) import specifiers in src
+  JHITS=$(grep -RhoE "from ['\"][^'\"]+['\"]" "$JSROOT/src" 2>/dev/null         | sed -E "s/from ['\"]//; s/['\"]$//"         | grep -vE '^(\.|node:)' || true)
+  if [ -n "$JHITS" ]; then
+    echo "non-relative import specifiers in restxop-js/src (runtime deps are forbidden):"
+    echo "$JHITS" | sort -u
+    FAIL=1
+  fi
+  if grep -q '"dependencies"' "$JSROOT/package.json"; then
+    echo "restxop-js/package.json declares runtime dependencies"
+    FAIL=1
+  fi
+  if ! grep -q '"name": "restxop-js"' "$JSROOT/package.json"; then
+    echo "restxop-js package name is not the neutral coordinate"
+    FAIL=1
+  fi
+  TSMISSING=$(grep -RL "Licensed under the Apache License, Version 2.0"         --include='*.ts' "$JSROOT/src" 2>/dev/null || true)
+  if [ -n "$TSMISSING" ]; then
+    echo "restxop-js sources missing the license header:"
+    echo "$TSMISSING"
+    FAIL=1
+  fi
+fi
+
 echo "== hygiene: Apache-2.0 headers on all Java sources"
 MISSING=$(grep -RL "Licensed under the Apache License, Version 2.0" \
         --include='*.java' "$ROOT/"*/src 2>/dev/null || true)

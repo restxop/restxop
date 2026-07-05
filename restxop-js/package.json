@@ -1,0 +1,33 @@
+{
+  "name": "restxop-js",
+  "version": "0.1.0",
+  "description": "Browser/Node client for restxop attachment messages: typed JSON payloads with lazily streamed binary attachments over standard multipart/related",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "LICENSE", "README.md"],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && vitest run --exclude test/memory.test.ts && npm run check:size",
+    "test:node": "vitest run",
+    "test:browser": "vitest run --config vitest.browser.config.ts",
+    "test:memory": "vitest run test/memory.test.ts",
+    "check:size": "node scripts/check-bundle-size.mjs",
+    "demo:node": "node scripts/demo-node.mjs"
+  },
+  "devDependencies": {
+    "@vitest/browser": "^3.2.0",
+    "playwright": "^1.49.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
+  }
+}

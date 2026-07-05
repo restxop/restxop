@@ -32,6 +32,32 @@ jobs:
       - name: Build and verify
         run: mvn -B -ntp -f restxop/pom.xml verify
 
+  js:
+    if: github.event_name != 'schedule'
+    name: restxop-js (Node + Chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: restxop-js/package-lock.json
+      - name: Hygiene check (SC-008)
+        run: restxop/build-config/check-hygiene.sh
+      - name: Install
+        working-directory: restxop-js
+        run: npm ci
+      - name: Build, test, size gate
+        working-directory: restxop-js
+        run: npm test
+      - name: Install Chromium
+        working-directory: restxop-js
+        run: npx playwright install --with-deps chromium
+      - name: Browser conformance
+        working-directory: restxop-js
+        run: npm run test:browser
+
   perf:
     # Informational only: throughput guard (SC-006) must not gate merges
     if: github.event_name != 'schedule'
