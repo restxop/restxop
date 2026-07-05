@@ -24,6 +24,12 @@ interface ReportPayload {
   report: AttachmentHandle | null;
 }
 
+interface BundlePayload {
+  name: string;
+  first: AttachmentHandle;
+  second: AttachmentHandle;
+}
+
 async function readAll(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const reader = stream.getReader();
   const parts: Uint8Array[] = [];
@@ -144,6 +150,93 @@ describe("message session (US1)", () => {
     );
     expect(zeroMessage.payload).toEqual({ message: "plain", number: 42 });
     await zeroMessage.completed;
+  });
+
+  it("skip() frees the attachment and later parts stay readable", async () => {
+    const fixture = await loadFixture("canonical/multi-attachment.http");
+    const message = await readMessage<BundlePayload>(fixture.contentType, chunked(fixture.body, 7));
+
+    await message.payload.first.skip();
+    expect(latin1(await message.payload.second.bytes())).toBe("%PDF-1.7 fake minimal content");
+    await message.completed;
+    // A skipped handle's reads say so
+    await expect(readAll(message.payload.first.stream())).rejects.toThrow(/skip/);
+  });
+
+  it("out-of-order access: the second attachment first, the first from retention", async () => {
+    const fixture = await loadFixture("canonical/multi-attachment.http");
+    const message = await readMessage<BundlePayload>(fixture.contentType, chunked(fixture.body, 3));
+
+    // Reading the later part drives the wire past the first, which is
+    // retained in memory for later byte-exact consumption
+    expect(latin1(await message.payload.second.bytes())).toBe("%PDF-1.7 fake minimal content");
+    expect(latin1(await message.payload.first.bytes())).toBe("alpha content");
+    expect(message.payload.first.filename).toBe("alpha.txt");
+    await message.completed;
+  });
+
+  it("blob() carries the part's content type and the streamed bytes", async () => {
+    const fixture = await loadFixture("canonical/single-attachment.http");
+    const message = await readMessage<ReportPayload>(
+      fixture.contentType,
+      chunked(fixture.body, 64),
+    );
+    const blob = await message.payload.report!.blob();
+    expect(blob.type).toBe("application/octet-stream");
+    expect(new Uint8Array(await blob.arrayBuffer())).toEqual(SINGLE_CONTENT);
+  });
+
+  it("duplicate references share one consumption", async () => {
+    const boundary = "dup-boundary-02";
+    const body = latin1Bytes(
+      `\r\n--${boundary}\r\n` +
+        "Content-ID: <root>\r\nContent-Type: application/json\r\n\r\n" +
+        '{"left":{"Include":{"href":"cid:one"}},"right":{"Include":{"href":"cid:one"}}}' +
+        `\r\n--${boundary}\r\n` +
+        "Content-ID: <one>\r\nContent-Type: application/octet-stream\r\n\r\n" +
+        "shared bytes" +
+        `\r\n--${boundary}--\r\n`,
+    );
+    const contentType = `multipart/related; type="application/json"; boundary="${boundary}"; start="<root>"`;
+    const message = await readMessage<{ left: AttachmentHandle; right: AttachmentHandle }>(
+      contentType,
+      chunked(body, 16),
+    );
+    expect(latin1(await message.payload.left.bytes())).toBe("shared bytes");
+    await expect(message.payload.right.bytes()).rejects.toThrow(/consum/i);
+  });
+
+  it("unreferenced wire parts are skipped silently", async () => {
+    const boundary = "extra-part-01";
+    const body = latin1Bytes(
+      `\r\n--${boundary}\r\n` +
+        "Content-ID: <root>\r\nContent-Type: application/json\r\n\r\n" +
+        '{"title":"t","report":{"Include":{"href":"cid:wanted"}}}' +
+        `\r\n--${boundary}\r\n` +
+        "Content-ID: <noise>\r\nContent-Type: application/octet-stream\r\n\r\n" +
+        "never referenced" +
+        `\r\n--${boundary}\r\n` +
+        "Content-ID: <wanted>\r\nContent-Type: application/octet-stream\r\n\r\n" +
+        "the good part" +
+        `\r\n--${boundary}--\r\n`,
+    );
+    const contentType = `multipart/related; type="application/json"; boundary="${boundary}"; start="<root>"`;
+    const message = await readMessage<ReportPayload>(contentType, chunked(body, 5));
+    expect(message.attachments).toHaveLength(1);
+    expect(latin1(await message.payload.report!.bytes())).toBe("the good part");
+    await message.completed;
+  });
+
+  it("bounds that exactly accommodate the message pass", async () => {
+    const fixture = await loadFixture("canonical/multi-attachment.http");
+    const message = await readMessage<BundlePayload>(fixture.contentType, chunked(fixture.body, 64), {
+      maxParts: 3, // root + two attachments, exactly
+      maxRootBytes: 4096, // tight but sufficient for the fixture's root
+      maxPartHeaderBytes: 512,
+    });
+    expect(latin1(await message.payload.first.bytes())).toBe("alpha content");
+    expect(latin1(await message.payload.second.bytes())).toBe("%PDF-1.7 fake minimal content");
+    await message.completed;
   });
 
   it("the read-idle deadline bounds waits on a stalled source", async () => {

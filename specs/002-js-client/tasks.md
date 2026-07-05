@@ -93,11 +93,11 @@
 
 ### Tests for User Story 3 (write FIRST)
 
-- [ ] T021 [US3] Rich-payload suite: fidelity + multi/nested/null/zero fixtures through the session (every attachment checksum-exact with its own metadata; null stays null; zero-attachment completes immediately); duplicate references share one handle and one consumption; `skip()` frees retention and later parts stay readable; out-of-order access (read the second attachment first — the first is retained then still byte-exact); `bytes()`/`blob()` equal streamed content; `maxParts`/`maxRootBytes`/`maxPartHeaderBytes` option overrides enforced — extending `restxop-js/test/session.test.ts` and `restxop-js/test/conformance.test.ts`
+- [X] T021 [US3] Rich-payload suite: fidelity + multi/nested/null/zero fixtures through the session (every attachment checksum-exact with its own metadata; null stays null; zero-attachment completes immediately); duplicate references share one handle and one consumption; `skip()` frees retention and later parts stay readable; out-of-order access (read the second attachment first — the first is retained then still byte-exact); `bytes()`/`blob()` equal streamed content; `maxParts`/`maxRootBytes`/`maxPartHeaderBytes` option overrides enforced — extending `restxop-js/test/session.test.ts` and `restxop-js/test/conformance.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Retention/skip/out-of-order hardening and unreferenced-part lenient skip to green in `restxop-js/src/session.ts` + `restxop-js/src/handle.ts`
+- [X] T022 [US3] Retention/skip/out-of-order hardening and unreferenced-part lenient skip to green in `restxop-js/src/session.ts` + `restxop-js/src/handle.ts`
 
 **Checkpoint**: SC-002 full corpus green in both engines
 

@@ -81,6 +81,18 @@ const EXPECTATIONS: Expectation[] = [
     payloadCheck: (p: any) => expect(p.label).toBe("nested"),
   },
   {
+    fixture: "fidelity/nonascii-filename.http",
+    attachments: [
+      {
+        path: (p: any) => p.report,
+        content: latin1Bytes("pdf content bytes for the rfc6266 fixture"),
+        filename: "naïve – 文件.pdf",
+        contentType: "application/pdf",
+      },
+    ],
+    payloadCheck: (p: any) => expect(p.title).toBe("named"),
+  },
+  {
     fixture: "canonical/null-attachment.http",
     attachments: [],
     payloadCheck: (p: any) => {
