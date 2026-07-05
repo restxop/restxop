@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
@@ -223,6 +224,45 @@ class ChaseBufferTest {
         long waitedMillis = (System.nanoTime() - before) / 1_000_000;
         assertTrue(waitedMillis >= 180, "must wait out the deadline, waited " + waitedMillis + "ms");
         assertTrue(waitedMillis < 2000, "must not wait far past the deadline, waited " + waitedMillis + "ms");
+    }
+
+    @Test
+    void awaitWriterConditionGivesUpAtTheDeadline() {
+        ChaseBuffer buffer = buffer(1024, Long.MAX_VALUE, Duration.ofMillis(200));
+        long before = System.nanoTime();
+        assertFalse(buffer.awaitWriterCondition(() -> false));
+        long waitedMillis = (System.nanoTime() - before) / 1_000_000;
+        assertTrue(waitedMillis >= 180, "must wait out the deadline, waited " + waitedMillis + "ms");
+        assertTrue(waitedMillis < 2000, "must not wait far past the deadline, waited " + waitedMillis + "ms");
+    }
+
+    @Test
+    void awaitWriterConditionWakesOnWriterProgress() throws Exception {
+        ChaseBuffer buffer = buffer(1024, Long.MAX_VALUE, READ_WAIT);
+        AtomicBoolean bound = new AtomicBoolean();
+        Thread writer = new Thread(() -> {
+            try {
+                Thread.sleep(100);
+                bound.set(true);
+                buffer.write(new byte[] {1}, 0, 1); // signals the waiter
+            } catch (InterruptedException | IOException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        writer.start();
+        assertTrue(buffer.awaitWriterCondition(bound::get),
+                "waiter must observe the condition set before the writer's signal");
+        writer.join();
+    }
+
+    @Test
+    void awaitWriterConditionReturnsImmediatelyOnTerminalBuffer() {
+        ChaseBuffer buffer = buffer(1024, Long.MAX_VALUE, READ_WAIT);
+        buffer.completeWriter();
+        long before = System.nanoTime();
+        assertFalse(buffer.awaitWriterCondition(() -> false));
+        assertTrue((System.nanoTime() - before) / 1_000_000 < 1000,
+                "terminal buffers must not park the waiter");
     }
 
     @Test

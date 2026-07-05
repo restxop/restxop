@@ -18,9 +18,11 @@
     <!-- The testkit's suites execute (and are covered) inside the starter test
          modules; its own module tests only exercise the fixture plumbing -->
     <restxop.coverage.min>0.40</restxop.coverage.min>
-    <!-- Same rationale for Sonar: analyze issues, don't demand coverage of
-         what is itself test tooling -->
+    <!-- Same rationale for Sonar: analyze issues, don't demand coverage or
+         duplication metrics of what is itself test tooling (suites share
+         scaffolding shapes; value-object boilerplate repeats by nature) -->
     <sonar.coverage.exclusions>**/*</sonar.coverage.exclusions>
+    <sonar.cpd.exclusions>**/*</sonar.cpd.exclusions>
   </properties>
 
   <build>
