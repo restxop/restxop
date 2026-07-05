@@ -27,11 +27,13 @@
     "test:memory": "vitest run test/memory.test.ts",
     "check:size": "node scripts/check-bundle-size.mjs",
     "demo:node": "node scripts/demo-node.mjs",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm test",
+    "test:coverage": "vitest run --exclude test/memory.test.ts --coverage.enabled --coverage.provider=v8 --coverage.reporter=lcov --coverage.include=src"
   },
   "devDependencies": {
     "@vitest/browser": "^4.1.9",
     "@vitest/browser-playwright": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.9",
     "playwright": "^1.49.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
