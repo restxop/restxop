@@ -67,7 +67,14 @@ jobs:
           npm ci
           npm test
       - name: Publish
+        # Auth is npm Trusted Publishing (OIDC via id-token: write) — no
+        # token secret exists. Skips when the version is already on the
+        # registry (the 0.1.0 bootstrap was published locally).
         working-directory: restxop-js
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance --access public
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "restxop-js@$VERSION" version > /dev/null 2>&1; then
+            echo "restxop-js@$VERSION already on the registry — skipping"
+            exit 0
+          fi
+          npm publish --provenance --access public
