@@ -27,5 +27,7 @@
     <module>sample-client-boot4</module>
     <module>sample-server-boot3</module>
     <module>sample-client-boot3</module>
+    <module>sample-client-feign-boot4</module>
+    <module>sample-client-feign-boot3</module>
   </modules>
 </project>

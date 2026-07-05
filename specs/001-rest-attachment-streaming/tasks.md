@@ -139,9 +139,9 @@
 - [X] T045 [P] [US4] `RestClient` deferred-close customizer + tests in both starters (`client/RestxopRestClientCustomizer.java`)
 - [X] T046 [P] [US4] OpenFeign support (`@ConditionalOnClass(feign.Feign.class)` decoder with deferred close) + tests in both starters (`feign/RestxopFeignDecoder.java`)
 - [X] T047 [US4] Multipart-resolver guard: `restxop.strict-multipart-resolution` auto-config (strict-compliance resolver bean) per research R6 in both starters + integration test posting `multipart/related` alongside an active form-upload endpoint
-- [ ] T048 [P] [US4] Feign sample clients: `restxop/restxop-samples/sample-client-feign-boot3/` and `sample-client-feign-boot4/`
-- [ ] T049 [P] [US4] `restxop/README.md`: setup per generation, configuration reference (contracts/public-api.md table), resolver pitfall, spool-security guidance (encrypted volume / SpoolStorage SPI), migration notes from legacy library
-- [ ] T050 [US4] SC-007 validation: follow README only, from blank Boot 3 and Boot 4 apps, to working round trip; record timings and fix doc gaps found
+- [X] T048 [P] [US4] Feign sample clients: `restxop/restxop-samples/sample-client-feign-boot3/` and `sample-client-feign-boot4/`
+- [X] T049 [P] [US4] `restxop/README.md`: setup per generation, configuration reference (contracts/public-api.md table), resolver pitfall, spool-security guidance (encrypted volume / SpoolStorage SPI), migration notes from legacy library
+- [X] T050 [US4] SC-007 validation: follow README only, from blank Boot 3 and Boot 4 apps, to working round trip; record timings and fix doc gaps found
 
 **Checkpoint**: quickstart §1 + §8 pass; all four client paths (RestTemplate/RestClient/Feign × 2 gens) demonstrated
 
