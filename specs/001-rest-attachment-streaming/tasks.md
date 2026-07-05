@@ -132,13 +132,13 @@
 
 ### Tests for User Story 4 (write FIRST where applicable)
 
-- [ ] T044 [US4] Cross-generation wire-identity test: identical payloads produce byte-identical messages (modulo boundary) and identical error surfaces across Boot 3/Boot 4 starters (SC-005), in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/CrossGenerationSuite.java`
+- [X] T044 [US4] Cross-generation wire-identity test: identical payloads produce byte-identical messages (modulo boundary) and identical error surfaces across Boot 3/Boot 4 starters (SC-005), in `restxop/restxop-testkit/src/main/java/dev/restxop/testkit/CrossGenerationSuite.java`
 
 ### Implementation for User Story 4
 
-- [ ] T045 [P] [US4] `RestClient` deferred-close customizer + tests in both starters (`client/RestxopRestClientCustomizer.java`)
-- [ ] T046 [P] [US4] OpenFeign support (`@ConditionalOnClass(feign.Feign.class)` decoder with deferred close) + tests in both starters (`feign/RestxopFeignDecoder.java`)
-- [ ] T047 [US4] Multipart-resolver guard: `restxop.strict-multipart-resolution` auto-config (strict-compliance resolver bean) per research R6 in both starters + integration test posting `multipart/related` alongside an active form-upload endpoint
+- [X] T045 [P] [US4] `RestClient` deferred-close customizer + tests in both starters (`client/RestxopRestClientCustomizer.java`)
+- [X] T046 [P] [US4] OpenFeign support (`@ConditionalOnClass(feign.Feign.class)` decoder with deferred close) + tests in both starters (`feign/RestxopFeignDecoder.java`)
+- [X] T047 [US4] Multipart-resolver guard: `restxop.strict-multipart-resolution` auto-config (strict-compliance resolver bean) per research R6 in both starters + integration test posting `multipart/related` alongside an active form-upload endpoint
 - [ ] T048 [P] [US4] Feign sample clients: `restxop/restxop-samples/sample-client-feign-boot3/` and `sample-client-feign-boot4/`
 - [ ] T049 [P] [US4] `restxop/README.md`: setup per generation, configuration reference (contracts/public-api.md table), resolver pitfall, spool-security guidance (encrypted volume / SpoolStorage SPI), migration notes from legacy library
 - [ ] T050 [US4] SC-007 validation: follow README only, from blank Boot 3 and Boot 4 apps, to working round trip; record timings and fix doc gaps found

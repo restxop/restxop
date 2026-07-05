@@ -17,6 +17,7 @@ package dev.restxop.boot4;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import dev.restxop.boot4.client.RestxopRestClientCustomizer;
 import dev.restxop.boot4.client.RestxopRestTemplateCustomizer;
 import dev.restxop.boot4.web.RestxopHttpMessageConverter;
 import dev.restxop.core.internal.buffer.FileSpoolStorage;
@@ -75,6 +76,50 @@ public class RestxopAutoConfiguration {
     public RestxopRestTemplateCustomizer restxopRestTemplateCustomizer(
             RestxopHttpMessageConverter converter) {
         return new RestxopRestTemplateCustomizer(converter);
+    }
+
+    @Bean
+    public RestxopRestClientCustomizer restxopRestClientCustomizer(
+            RestxopHttpMessageConverter converter) {
+        return new RestxopRestClientCustomizer(converter);
+    }
+
+    /**
+     * Optional OpenFeign support (FR-027): a decoder with deferred close
+     * plus a builder customizer that hands response lifetime to the decoder.
+     * Nested so applications without Feign never introspect its types.
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass({feign.Feign.class,
+        org.springframework.cloud.openfeign.FeignBuilderCustomizer.class})
+    static class RestxopFeignConfiguration {
+
+        @Bean
+        @ConditionalOnMissingBean(feign.codec.Decoder.class)
+        feign.codec.Decoder restxopFeignDecoder(RestxopRuntime runtime,
+                ObjectProvider<org.springframework.boot.http.converter.autoconfigure.ClientHttpMessageConvertersCustomizer> converterCustomizers,
+                ObjectProvider<org.springframework.cloud.openfeign.support.HttpMessageConverterCustomizer> feignCustomizers) {
+            var converters = new org.springframework.cloud.openfeign.support.FeignHttpMessageConverters(
+                    converterCustomizers, feignCustomizers);
+            ObjectProvider<org.springframework.cloud.openfeign.support.FeignHttpMessageConverters> provider =
+                    new ObjectProvider<>() {
+                        @Override
+                        public org.springframework.cloud.openfeign.support.FeignHttpMessageConverters getObject() {
+                            return converters;
+                        }
+                    };
+            feign.codec.Decoder springChain = new feign.optionals.OptionalDecoder(
+                    new org.springframework.cloud.openfeign.support.ResponseEntityDecoder(
+                            new org.springframework.cloud.openfeign.support.SpringDecoder(provider)));
+            return new dev.restxop.boot4.feign.RestxopFeignDecoder(runtime, springChain);
+        }
+
+        @Bean
+        org.springframework.cloud.openfeign.FeignBuilderCustomizer restxopFeignBuilderCustomizer() {
+            // The restxop decoder owns response lifetime (deferred close);
+            // Feign must not close after decode
+            return feign.Feign.Builder::doNotCloseAfterDecode;
+        }
     }
 
     /**

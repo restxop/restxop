@@ -1,1 +1,2 @@
 dev.restxop.boot3.RestxopAutoConfiguration
+dev.restxop.boot3.RestxopMultipartResolverAutoConfiguration
