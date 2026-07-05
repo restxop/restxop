@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>restxop streaming demo</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 2rem; color: #1a1a2e; }
+      .layout { display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
+      .panel { border: 1px solid #d0d0e0; border-radius: 8px; padding: 1rem 1.5rem; min-width: 320px; }
+      dt { font-weight: 600; margin-top: .6rem; color: #444; font-size: .85rem; text-transform: uppercase; }
+      dd { margin: 0; }
+      .tag { display: inline-block; background: #eef; border-radius: 4px; padding: 0 .5rem; margin-right: .3rem; }
+      progress { width: 100%; height: 12px; }
+      iframe { border: 1px solid #d0d0e0; border-radius: 8px; width: 640px; height: 720px; }
+      .stat { font-variant-numeric: tabular-nums; color: #666; font-size: .85rem; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

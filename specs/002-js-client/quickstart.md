@@ -80,6 +80,21 @@ indicator shows the PDF still streaming; on completion the PDF displays in
 the embedded viewer; the network tab confirms a single `multipart/related`
 response.
 
+Automated equivalent (both servers running, from `restxop-js/`):
+
+```bash
+npm run build && node scripts/validate-sc001.mjs
+```
+
+> **Validated 2026-07-05** (T017, Chromium via Playwright, network throttled
+> to 4 MiB/s to make the streaming phase observable): exactly **1** request
+> to `/document` (`multipart/related; type="application/json"`); metadata
+> rendered at **27 ms**; streaming indicator visible while metadata was
+> already on screen; 32 MiB transfer completed at **8023 ms**; browser-side
+> SHA-256 of the assembled PDF identical to the wire content
+> (`bd184fe1…80c4907`). Unthrottled loopback run: metadata 44 ms,
+> completion 212 ms, same digest. **SC-001 PASS.**
+
 ## 6. Upload round trip (SC-007)
 
 In the demo's upload form, choose a file (~25 MB) and submit.

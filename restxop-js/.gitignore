@@ -2,3 +2,4 @@ node_modules/
 dist/
 demo/node_modules/
 demo/dist/
+demo/*.tsbuildinfo
