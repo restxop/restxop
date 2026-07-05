@@ -74,12 +74,12 @@
 
 ### Tests for User Story 2 (write FIRST)
 
-- [ ] T018 [US2] Failure suite: the malformed fixture corpus → typed errors (limit names + values asserted); truncation before/inside root, inside part headers, mid-content; source stream erroring mid-message → TransferError with cause delivered to blocked and subsequent reads; AbortSignal fired before payload / mid-attachment / after delivery → source cancelled promptly (< 1 s) and reads reject CancelledError; read-idle expiry on a stalled source; referenced-part-absent → AttachmentUnavailableError at end of message — in `restxop-js/test/failure.test.ts`
+- [X] T018 [US2] Failure suite: the malformed fixture corpus → typed errors (limit names + values asserted); truncation before/inside root, inside part headers, mid-content; source stream erroring mid-message → TransferError with cause delivered to blocked and subsequent reads; AbortSignal fired before payload / mid-attachment / after delivery → source cancelled promptly (< 1 s) and reads reject CancelledError; read-idle expiry on a stalled source; referenced-part-absent → AttachmentUnavailableError at end of message — in `restxop-js/test/failure.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Harden session/scanner failure paths to green: typed-error mapping at every parse site, cancellation plumbing (reader.cancel + state transitions + retention release), idle-deadline racing on every pull, unavailable resolution at end-of-message, in `restxop-js/src/session.ts` + `restxop-js/src/scanner.ts`
-- [ ] T020 [US2] SC-004 timing + hygiene assertions: aborts observed to stop the source within 1 s in each phase; no dangling reader locks (source stream state checked after every failure case) — extend `restxop-js/test/failure.test.ts`
+- [X] T019 [US2] Harden session/scanner failure paths to green: typed-error mapping at every parse site, cancellation plumbing (reader.cancel + state transitions + retention release), idle-deadline racing on every pull, unavailable resolution at end-of-message, in `restxop-js/src/session.ts` + `restxop-js/src/scanner.ts`
+- [X] T020 [US2] SC-004 timing + hygiene assertions: aborts observed to stop the source within 1 s in each phase; no dangling reader locks (source stream state checked after every failure case) — extend `restxop-js/test/failure.test.ts`
 
 **Checkpoint**: quickstart §3 passes; SC-004 demonstrated
 

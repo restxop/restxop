@@ -159,12 +159,7 @@ class MessageSession implements HandleDriver {
     try {
       this.drainQueue();
     } catch (cause) {
-      const error =
-        cause instanceof RestxopError
-          ? cause
-          : new MalformedMessageError("message parsing failed", { cause });
-      this.fail(error);
-      throw error;
+      throw this.failWith(cause, "parse");
     }
 
     if (this.order.length === 0) {
@@ -216,23 +211,13 @@ class MessageSession implements HandleDriver {
       // Serve queued events first (parts held back until wiring)
       if (this.drainQueue()) return;
     } catch (cause) {
-      const error =
-        cause instanceof RestxopError
-          ? cause
-          : new MalformedMessageError("message parsing failed", { cause });
-      this.fail(error);
-      throw error;
+      throw this.failWith(cause, "parse");
     }
     let result: ReadableStreamReadResult<Uint8Array>;
     try {
       result = await this.readWithDeadline();
     } catch (cause) {
-      const error =
-        cause instanceof RestxopError
-          ? cause
-          : new TransferError("source failed mid-message", { cause });
-      this.fail(error);
-      throw error;
+      throw this.failWith(cause, "transfer");
     }
     try {
       const events = result.done
@@ -241,13 +226,24 @@ class MessageSession implements HandleDriver {
       this.queue.push(...events);
       this.drainQueue();
     } catch (cause) {
-      const error =
-        cause instanceof RestxopError
-          ? cause
-          : new MalformedMessageError("message parsing failed", { cause });
-      this.fail(error);
-      throw error;
+      throw this.failWith(cause, "parse");
     }
+  }
+
+  /**
+   * Records a failure and returns the session's authoritative one: the
+   * FIRST failure wins everywhere — a cancelled reader also produces a
+   * truncation from the scanner, which must never mask the abort.
+   */
+  private failWith(cause: unknown, site: "parse" | "transfer"): RestxopError {
+    const mapped =
+      cause instanceof RestxopError
+        ? cause
+        : site === "transfer"
+          ? new TransferError("source failed mid-message", { cause })
+          : new MalformedMessageError("message parsing failed", { cause });
+    this.fail(mapped);
+    return this.failure ?? mapped;
   }
 
   /**
@@ -352,7 +348,7 @@ class MessageSession implements HandleDriver {
           }
         }
         this.resolveCompleted();
-        void this.reader.cancel().catch(() => undefined);
+        this.releaseSource();
         break;
       }
     }
@@ -421,16 +417,27 @@ class MessageSession implements HandleDriver {
   }
 
   private fail(error: RestxopError): void {
-    if (this.failure || this.done) {
-      if (!this.done) return;
-      // post-completion aborts are no-ops
-      if (this.failure) return;
-    }
-    if (this.done) return;
+    // First failure wins; post-completion failures (e.g. late aborts) are
+    // no-ops — delivered bytes stay readable
+    if (this.failure || this.done) return;
     this.failure = error;
     for (const handle of this.order) handle.fail(error);
     this.rejectCompleted(error);
-    void this.reader.cancel().catch(() => undefined);
+    this.releaseSource();
+  }
+
+  /** Cancels the source and releases the reader lock — no dangling locks. */
+  private releaseSource(): void {
+    void this.reader
+      .cancel()
+      .catch(() => undefined)
+      .then(() => {
+        try {
+          this.reader.releaseLock();
+        } catch {
+          // already released
+        }
+      });
   }
 
   // ---- payload substitution (constitution IV: tree traversal) ----

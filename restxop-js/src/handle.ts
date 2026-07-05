@@ -91,6 +91,11 @@ export class AttachmentHandle {
    * wire on demand; bytes that arrived early are served from retention.
    */
   stream(): ReadableStream<Uint8Array> {
+    // A failed part (not fully arrived) re-delivers its typed failure on
+    // every read attempt — never a generic consumption error
+    if (this.failure && !this.ended) {
+      return errored(this.failure);
+    }
     if (this.consumed && !this.streamInstance) {
       return errored(new RestxopError(`attachment '${this.contentId}' was already consumed`));
     }
@@ -103,6 +108,9 @@ export class AttachmentHandle {
 
   /** Whole-content convenience (same single consumption as {@link stream}). */
   async bytes(): Promise<Uint8Array> {
+    if (this.failure && !this.ended) {
+      throw this.failure;
+    }
     if (this.consumed) {
       throw new RestxopError(`attachment '${this.contentId}' was already consumed`);
     }
