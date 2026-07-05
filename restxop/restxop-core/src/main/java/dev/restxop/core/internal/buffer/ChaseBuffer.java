@@ -210,7 +210,13 @@ public final class ChaseBuffer {
                 }
                 waiters++;
                 try {
-                    dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
+                    boolean signalled = dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
+                    if (!signalled) {
+                        // Deadline elapsed while parked: fall through to the
+                        // loop head, which delivers data that raced the
+                        // deadline before taking the timeout path
+                        continue;
+                    }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new RestxopException(exchangeId,
@@ -255,7 +261,12 @@ public final class ChaseBuffer {
                 }
                 waiters++;
                 try {
-                    dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
+                    boolean signalled = dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
+                    if (!signalled) {
+                        // Deadline elapsed while parked: the loop head takes
+                        // the give-up path after one final condition check
+                        continue;
+                    }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return condition.getAsBoolean();

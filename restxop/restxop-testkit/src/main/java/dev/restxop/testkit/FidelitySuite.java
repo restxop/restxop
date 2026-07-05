@@ -66,6 +66,9 @@ public abstract class FidelitySuite {
         return decode(message.contentType(), new ByteArrayInputStream(message.body()), type);
     }
 
+    // Deterministic seeded content is the point: fixtures must be
+    // byte-reproducible across suite runs and implementations (not security)
+    @SuppressWarnings("java:S2245")
     private static byte[] content(int seed, int size) {
         byte[] data = new byte[size];
         new Random(seed).nextBytes(data);

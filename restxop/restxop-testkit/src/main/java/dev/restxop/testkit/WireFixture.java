@@ -15,6 +15,8 @@
  */
 package dev.restxop.testkit;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,5 +53,24 @@ public record WireFixture(String name, String contentType, byte[] body) {
                     "fixture '" + name + "' has no " + what + " parameter: " + contentType);
         }
         return matcher.group(1) != null ? matcher.group(1) : matcher.group(2);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof WireFixture that
+                && name.equals(that.name)
+                && contentType.equals(that.contentType)
+                && Arrays.equals(body, that.body);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, contentType, Arrays.hashCode(body));
+    }
+
+    @Override
+    public String toString() {
+        return "WireFixture[name=" + name + ", contentType=" + contentType
+                + ", body=" + body.length + " bytes]";
     }
 }

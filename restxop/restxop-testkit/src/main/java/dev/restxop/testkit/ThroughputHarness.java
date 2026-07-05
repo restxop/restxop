@@ -190,10 +190,11 @@ public abstract class ThroughputHarness {
 
     private static void copyGenerated(OutputStream out) throws IOException {
         byte[] buffer = new byte[64 * 1024];
-        GeneratedStream in = new GeneratedStream();
-        int n;
-        while ((n = in.read(buffer, 0, buffer.length)) != -1) {
-            out.write(buffer, 0, n);
+        try (GeneratedStream in = new GeneratedStream()) {
+            int n;
+            while ((n = in.read(buffer, 0, buffer.length)) != -1) {
+                out.write(buffer, 0, n);
+            }
         }
     }
 

@@ -196,6 +196,25 @@ public abstract class LegacyCompatSuite {
     // ------------------------------------------------------------------
 
     private record Written(String contentType, String responseId, byte[] body) {
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Written that
+                    && contentType.equals(that.contentType)
+                    && responseId.equals(that.responseId)
+                    && java.util.Arrays.equals(body, that.body);
+        }
+
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash(contentType, responseId, java.util.Arrays.hashCode(body));
+        }
+
+        @Override
+        public String toString() {
+            return "Written[contentType=" + contentType + ", responseId=" + responseId
+                    + ", body=" + body.length + " bytes]";
+        }
     }
 
     private Written writeCompat(LegacyPayload payload) throws IOException {

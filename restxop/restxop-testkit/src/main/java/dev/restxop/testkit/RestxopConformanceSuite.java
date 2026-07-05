@@ -73,6 +73,23 @@ public abstract class RestxopConformanceSuite {
 
     /** A produced wire message: outer Content-Type plus exact body bytes. */
     public record EncodedMessage(String contentType, byte[] body) {
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof EncodedMessage that
+                    && contentType.equals(that.contentType)
+                    && java.util.Arrays.equals(body, that.body);
+        }
+
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash(contentType, java.util.Arrays.hashCode(body));
+        }
+
+        @Override
+        public String toString() {
+            return "EncodedMessage[contentType=" + contentType + ", body=" + body.length + " bytes]";
+        }
     }
 
     /**
@@ -231,6 +248,9 @@ public abstract class RestxopConformanceSuite {
     // ---------------------------------------------------------------------
 
     @Test
+    // Deterministic seeded content: reproducible across runs (java:S2245 is
+    // about security contexts; this is test data)
+    @SuppressWarnings("java:S2245")
     protected void roundTripsLargeContentChecksumExact() throws Exception {
         byte[] content = new byte[1_500_000];
         new Random(99).nextBytes(content);

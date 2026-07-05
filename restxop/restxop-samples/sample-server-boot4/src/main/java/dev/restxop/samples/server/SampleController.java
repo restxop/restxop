@@ -33,6 +33,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Attachment endpoints: everything is plain {@code @RequestBody}/return values. */
 @RestController
+// Wide-open CORS is deliberate for this demo server (FR-014): browser
+// front ends on other origins must be able to consume the showcase
+// endpoints; production services should scope origins instead
+@SuppressWarnings("java:S5122")
 @CrossOrigin
 public class SampleController {
 
@@ -64,7 +68,8 @@ public class SampleController {
             }
         }
         String sha256 = HexFormat.of().formatHex(digest.digest());
-        log.info("received upload '{}': {} bytes, sha256 {}", payload.label, total, sha256);
+        String safeLabel = payload.label == null ? null : payload.label.replaceAll("[\\r\\n]", "_");
+        log.info("received upload '{}': {} bytes, sha256 {}", safeLabel, total, sha256);
         return Map.of("label", payload.label, "size", total, "sha256", sha256);
     }
 

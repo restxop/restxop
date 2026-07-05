@@ -84,7 +84,9 @@ public class SampleClientApplication implements CommandLineRunner {
                 + "(attachment still streaming)", payloadAtMillis, payload.name, payload.size,
                 payload.seed);
 
-        Path target = Files.createTempFile("restxop-sample-", ".bin");
+        // Private 0700 directory: nothing else on the host can observe or
+        // replace the download while it is being written
+        Path target = Files.createTempDirectory("restxop-sample-").resolve("download.bin");
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         long copied;
         try (InputStream in = new DigestInputStream(payload.data.contentStream(), digest);
@@ -119,10 +121,11 @@ public class SampleClientApplication implements CommandLineRunner {
     static String expectedSha(long seed, long size) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] buffer = new byte[64 * 1024];
-        GeneratedInputStream generated = new GeneratedInputStream(seed, size);
-        int n;
-        while ((n = generated.read(buffer, 0, buffer.length)) != -1) {
-            digest.update(buffer, 0, n);
+        try (GeneratedInputStream generated = new GeneratedInputStream(seed, size)) {
+            int n;
+            while ((n = generated.read(buffer, 0, buffer.length)) != -1) {
+                digest.update(buffer, 0, n);
+            }
         }
         return HexFormat.of().formatHex(digest.digest());
     }

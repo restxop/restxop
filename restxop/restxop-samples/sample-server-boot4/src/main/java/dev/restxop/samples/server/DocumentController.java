@@ -30,6 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
  * origin (the demo dev server) can consume it directly.
  */
 @RestController
+// Wide-open CORS is deliberate for this demo server (FR-014): browser
+// front ends on other origins must be able to consume the showcase
+// endpoints; production services should scope origins instead
+@SuppressWarnings("java:S5122")
 @CrossOrigin
 public class DocumentController {
 

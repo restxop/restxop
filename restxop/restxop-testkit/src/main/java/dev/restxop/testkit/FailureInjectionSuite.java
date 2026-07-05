@@ -738,7 +738,7 @@ public abstract class FailureInjectionSuite {
         private final int gate;
         private final long intervalMillis;
         private int position;
-        private volatile IOException failure;
+        private final AtomicReference<IOException> failure = new AtomicReference<>();
 
         TricklingInputStream(byte[] data, int gate, long intervalMillis) {
             this.data = data;
@@ -747,7 +747,7 @@ public abstract class FailureInjectionSuite {
         }
 
         void sever(IOException cause) {
-            failure = cause;
+            failure.set(cause);
         }
 
         @Override
@@ -759,8 +759,9 @@ public abstract class FailureInjectionSuite {
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
-            if (failure != null) {
-                throw failure;
+            IOException severedBy = failure.get();
+            if (severedBy != null) {
+                throw severedBy;
             }
             if (position < gate) {
                 int n = Math.min(len, gate - position);
@@ -774,8 +775,9 @@ public abstract class FailureInjectionSuite {
                 Thread.currentThread().interrupt();
                 throw new IOException("interrupted while trickling", e);
             }
-            if (failure != null) {
-                throw failure;
+            IOException severedWhileParked = failure.get();
+            if (severedWhileParked != null) {
+                throw severedWhileParked;
             }
             if (position >= data.length) {
                 return -1;
@@ -793,7 +795,7 @@ public abstract class FailureInjectionSuite {
         private int position;
         private final CountDownLatch severed = new CountDownLatch(1);
         private final CountDownLatch blocked = new CountDownLatch(1);
-        private volatile IOException failure;
+        private final AtomicReference<IOException> failure = new AtomicReference<>();
 
         SeverableInputStream(byte[] data, int gate) {
             this.data = data;
@@ -801,7 +803,7 @@ public abstract class FailureInjectionSuite {
         }
 
         void sever(IOException cause) {
-            failure = cause;
+            failure.set(cause);
             severed.countDown();
         }
 
@@ -818,8 +820,9 @@ public abstract class FailureInjectionSuite {
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
-            if (failure != null) {
-                throw failure;
+            IOException severedBy = failure.get();
+            if (severedBy != null) {
+                throw severedBy;
             }
             if (position >= gate) {
                 blocked.countDown();
@@ -831,7 +834,7 @@ public abstract class FailureInjectionSuite {
                     Thread.currentThread().interrupt();
                     throw new IOException("interrupted awaiting sever", e);
                 }
-                throw failure;
+                throw failure.get();
             }
             int n = Math.min(len, gate - position);
             System.arraycopy(data, position, b, off, n);

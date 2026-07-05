@@ -97,10 +97,11 @@ public class SampleFeignClientApplication implements CommandLineRunner {
     static String expectedSha(long seed, long size) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] buffer = new byte[64 * 1024];
-        GeneratedInputStream generated = new GeneratedInputStream(seed, size);
-        int n;
-        while ((n = generated.read(buffer, 0, buffer.length)) != -1) {
-            digest.update(buffer, 0, n);
+        try (GeneratedInputStream generated = new GeneratedInputStream(seed, size)) {
+            int n;
+            while ((n = generated.read(buffer, 0, buffer.length)) != -1) {
+                digest.update(buffer, 0, n);
+            }
         }
         return HexFormat.of().formatHex(digest.digest());
     }

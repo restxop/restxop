@@ -62,7 +62,8 @@ public class SampleController {
             }
         }
         String sha256 = HexFormat.of().formatHex(digest.digest());
-        log.info("received upload '{}': {} bytes, sha256 {}", payload.label, total, sha256);
+        String safeLabel = payload.label == null ? null : payload.label.replaceAll("[\\r\\n]", "_");
+        log.info("received upload '{}': {} bytes, sha256 {}", safeLabel, total, sha256);
         return Map.of("label", payload.label, "size", total, "sha256", sha256);
     }
 
