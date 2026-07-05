@@ -15,6 +15,12 @@ updates:
       dependencies:
         patterns:
           - "*"
+        # The reactor pins Spring at two majors at once (Boot 3 and Boot 4
+        # baselines); grouping would unify them to one version and
+        # downgrade the newer line — keep those as individual PRs
+        exclude-patterns:
+          - "org.springframework.boot:*"
+          - "org.springframework.cloud:*"
       security:
         applies-to: security-updates
         patterns:
