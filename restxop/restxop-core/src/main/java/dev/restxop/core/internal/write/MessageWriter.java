@@ -44,6 +44,8 @@ import java.util.function.Supplier;
  */
 public final class MessageWriter {
 
+    private static final String CRLF = "\r\n";
+
     /**
      * Identifier generation for one message. Production uses
      * {@link #random()}; conformance tests inject deterministic values so
@@ -123,16 +125,16 @@ public final class MessageWriter {
             exchange.checkTtl();
             Attachment attachment = registered.attachment();
             StringBuilder headers = new StringBuilder(128)
-                    .append("\r\n--").append(ids.boundary()).append("\r\n");
+                    .append("\r\n--").append(ids.boundary()).append(CRLF);
             if (legacy) {
                 // §7: bare (unbracketed) identifier, legacy disposition shape
-                headers.append("Content-ID: ").append(registered.contentId()).append("\r\n");
+                headers.append("Content-ID: ").append(registered.contentId()).append(CRLF);
             } else {
                 headers.append("Content-ID: <").append(registered.contentId()).append(">\r\n");
             }
             headers.append("Content-Type: ")
                     .append(attachment.contentType().orElse("application/octet-stream"))
-                    .append("\r\n");
+                    .append(CRLF);
             attachment.filename().ifPresent(filename -> {
                 if (legacy) {
                     headers.append("Content-Disposition: attachment;name=\"")
@@ -140,7 +142,7 @@ public final class MessageWriter {
                             .append("\"\r\n");
                 } else {
                     headers.append("Content-Disposition: attachment; ")
-                            .append(dispositionFilename(filename)).append("\r\n");
+                            .append(dispositionFilename(filename)).append(CRLF);
                 }
             });
             headers.append("Content-Transfer-Encoding: binary\r\n\r\n");

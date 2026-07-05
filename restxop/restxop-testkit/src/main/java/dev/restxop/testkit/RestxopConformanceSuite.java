@@ -47,7 +47,12 @@ import org.junit.jupiter.api.Timeout;
  * wire identity (SC-005) is proven.
  */
 @Timeout(60)
+// Wire strings keep explicit \r\n: text blocks would obscure the exact
+// CRLF bytes the conformance assertions pin
+@SuppressWarnings("java:S6126")
 public abstract class RestxopConformanceSuite {
+
+    private static final String OCTET_STREAM = "application/octet-stream";
 
     /** Canonical fixture names bundled with the testkit. */
     protected static final String SINGLE_ATTACHMENT = "canonical/single-attachment.http";
@@ -145,7 +150,7 @@ public abstract class RestxopConformanceSuite {
         ReportPayload payload = new ReportPayload("Quarterly report",
                 Attachment.builder(singleAttachmentContent())
                         .filename("data.bin")
-                        .contentType("application/octet-stream")
+                        .contentType(OCTET_STREAM)
                         .build());
         WireFixture fixture = fixture(SINGLE_ATTACHMENT);
 
@@ -172,7 +177,7 @@ public abstract class RestxopConformanceSuite {
     protected void writesNestedAttachmentWithoutDispositionByteIdenticalToFixture() {
         NestedPayload payload = new NestedPayload("nested", new NestedPayload.Inner(
                 Attachment.builder(nestedContent())
-                        .contentType("application/octet-stream").build()));
+                        .contentType(OCTET_STREAM).build()));
 
         EncodedMessage message = encode(payload, WriterSettings.fixture());
 
@@ -204,7 +209,7 @@ public abstract class RestxopConformanceSuite {
         assertNotNull(payload.report);
         assertArrayEquals(singleAttachmentContent(), payload.report.contentStream().readAllBytes());
         assertEquals("data.bin", payload.report.filename().orElseThrow());
-        assertEquals("application/octet-stream", payload.report.contentType().orElseThrow());
+        assertEquals(OCTET_STREAM, payload.report.contentType().orElseThrow());
     }
 
     @Test
@@ -269,7 +274,7 @@ public abstract class RestxopConformanceSuite {
     @Test
     protected void duplicateReferencesTransmitOnePartAndShareOneInstance() throws IOException {
         Attachment shared = Attachment.builder("shared bytes".getBytes(StandardCharsets.UTF_8))
-                .contentType("application/octet-stream").build();
+                .contentType(OCTET_STREAM).build();
         BundlePayload outgoing = new BundlePayload("dup", shared, shared);
 
         EncodedMessage message = encode(outgoing, WriterSettings.fixture());

@@ -205,10 +205,10 @@ class Jackson2CodecTest {
 
     @Test
     void malformedStubFailsDescriptively() {
+        var malformed = json("{\"title\":\"t\",\"file\":{\"NotInclude\":true}}");
+        var docType = ResolvableTypeInfo.of(Doc.class);
         assertThrows(UncheckedIOException.class, () -> codec.readRoot(
-                json("{\"title\":\"t\",\"file\":{\"NotInclude\":true}}"),
-                ResolvableTypeInfo.of(Doc.class),
-                id -> Attachment.of(new byte[0])));
+                malformed, docType, id -> Attachment.of(new byte[0])));
     }
 
     @Test

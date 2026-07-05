@@ -174,6 +174,9 @@ public final class ChaseBuffer {
      * deadline) while the writer is active and no bytes are available.
      * Returns -1 once the writer has completed and every byte was consumed.
      */
+    // Cognitive complexity is inherent to the ring/spool/deadline state
+    // machine; the branch structure is pinned by the buffer test suite
+    @SuppressWarnings("java:S3776")
     public int read(byte[] buf, int off, int len) throws IOException {
         if (len == 0) {
             return 0;
@@ -210,12 +213,10 @@ public final class ChaseBuffer {
                 }
                 waiters++;
                 try {
-                    boolean signalled = dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
-                    if (!signalled) {
-                        // Deadline elapsed while parked: fall through to the
-                        // loop head, which delivers data that raced the
-                        // deadline before taking the timeout path
-                        continue;
+                    if (!dataAvailable.await(remaining, TimeUnit.NANOSECONDS)) {
+                        // Deadline elapsed while parked: the loop head
+                        // delivers data that raced the deadline before
+                        // taking the timeout path
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -261,11 +262,9 @@ public final class ChaseBuffer {
                 }
                 waiters++;
                 try {
-                    boolean signalled = dataAvailable.await(remaining, TimeUnit.NANOSECONDS);
-                    if (!signalled) {
+                    if (!dataAvailable.await(remaining, TimeUnit.NANOSECONDS)) {
                         // Deadline elapsed while parked: the loop head takes
                         // the give-up path after one final condition check
-                        continue;
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

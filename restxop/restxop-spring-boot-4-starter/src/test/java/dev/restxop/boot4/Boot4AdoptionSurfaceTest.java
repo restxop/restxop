@@ -63,6 +63,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @SpringBootTest(classes = Boot4AdoptionSurfaceTest.TestApp.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Timeout(120)
+// Thread.sleep here simulates pacing and park windows in real-time
+// streaming behavior — replacing it with synchronization would change
+// what is being tested
+@SuppressWarnings("java:S2925")
 class Boot4AdoptionSurfaceTest {
 
     static final byte[] STREAMED_CONTENT = streamedContent();
@@ -193,8 +197,9 @@ class Boot4AdoptionSurfaceTest {
 
         assertNotNull(payload);
         assertEquals("streamed", payload.title);
-        // The server is still stalling mid-attachment when body() returns;
-        // this read only succeeds if the response was not closed (FR-024)
+        // The server is still stalling mid-attachment at this point, so the
+        // read below only succeeds if the response was not closed after the
+        // typed payload was returned (FR-024)
         byte[] received = payload.report.contentStream().readAllBytes();
         assertArrayEquals(STREAMED_CONTENT, received);
         assertEquals("slow.bin", payload.report.filename().orElseThrow());

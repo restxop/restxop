@@ -124,8 +124,8 @@ class AttachmentTest {
 
     @Test
     void builderRejectsNegativeLength() {
-        assertThrows(IllegalArgumentException.class,
-                () -> Attachment.builder(CONTENT).contentLength(-1));
+        var builder = Attachment.builder(CONTENT);
+        assertThrows(IllegalArgumentException.class, () -> builder.contentLength(-1));
     }
 
     @Test

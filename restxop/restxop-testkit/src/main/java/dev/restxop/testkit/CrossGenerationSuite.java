@@ -51,6 +51,8 @@ import org.junit.jupiter.api.Timeout;
 @Timeout(120)
 public abstract class CrossGenerationSuite {
 
+    private static final String FIXTURE_FILENAME = "x.bin";
+
     /** Serializes through generation A (Boot 3 / Jackson 2 stack). */
     protected abstract EncodedMessage encodeGenerationA(Object payload, WriterSettings settings);
 
@@ -127,21 +129,21 @@ public abstract class CrossGenerationSuite {
     protected void eachGenerationReadsTheOthersOutputChecksumExact() throws IOException {
         byte[] bytes = content(10, 700_000); // crosses the default memory window
         ReportPayload outgoing = new ReportPayload("cross",
-                Attachment.builder(bytes).filename("x.bin").build());
+                Attachment.builder(bytes).filename(FIXTURE_FILENAME).build());
 
         EncodedMessage fromA = encodeGenerationA(outgoing, WriterSettings.fixture());
         ReportPayload readByB = decodeGenerationB(fromA.contentType(),
                 new ByteArrayInputStream(fromA.body()), ReportPayload.class);
         assertArrayEquals(bytes, readByB.report.contentStream().readAllBytes(), "A → B");
-        assertEquals("x.bin", readByB.report.filename().orElseThrow());
+        assertEquals(FIXTURE_FILENAME, readByB.report.filename().orElseThrow());
 
         ReportPayload outgoing2 = new ReportPayload("cross",
-                Attachment.builder(bytes).filename("x.bin").build());
+                Attachment.builder(bytes).filename(FIXTURE_FILENAME).build());
         EncodedMessage fromB = encodeGenerationB(outgoing2, WriterSettings.fixture());
         ReportPayload readByA = decodeGenerationA(fromB.contentType(),
                 new ByteArrayInputStream(fromB.body()), ReportPayload.class);
         assertArrayEquals(bytes, readByA.report.contentStream().readAllBytes(), "B → A");
-        assertEquals("x.bin", readByA.report.filename().orElseThrow());
+        assertEquals(FIXTURE_FILENAME, readByA.report.filename().orElseThrow());
     }
 
     @Test

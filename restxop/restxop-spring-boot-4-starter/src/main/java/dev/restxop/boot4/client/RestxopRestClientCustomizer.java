@@ -37,11 +37,9 @@ public class RestxopRestClientCustomizer implements RestClientCustomizer {
 
     @Override
     public void customize(RestClient.Builder builder) {
-        builder.messageConverters(converters -> {
-            if (!converters.contains(converter)) {
-                converters.add(0, converter);
-            }
-        });
+        // Custom converters precede the registered defaults, so restxop wins
+        // content-type resolution for multipart/related
+        builder.configureMessageConverters(mc -> mc.addCustomConverter(converter));
         builder.requestFactory(new DeferredCloseClientHttpRequestFactory(
                 ClientHttpRequestFactoryBuilder.detect().build()));
     }

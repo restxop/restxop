@@ -42,6 +42,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 @Timeout(30)
+// Thread.sleep here simulates pacing and park windows in real-time
+// streaming behavior — replacing it with synchronization would change
+// what is being tested
+// (S8714/S1181: concurrent readers run in spawned threads, so throwables
+// are captured cross-thread rather than via assertThrows)
+@SuppressWarnings({"java:S2925", "java:S8714", "java:S1181"})
 class ChaseBufferTest {
 
     private static final Duration READ_WAIT = Duration.ofSeconds(5);
@@ -286,7 +292,7 @@ class ChaseBufferTest {
     }
 
     @Test
-    void perAttachmentSpoolCapBreachFailsTheWrite() throws IOException {
+    void perAttachmentSpoolCapBreachFailsTheWrite() {
         ChaseBuffer buffer = buffer(16, 64, READ_WAIT);
         byte[] data = sequence(200); // would need 184 spooled > cap 64
 

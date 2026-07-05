@@ -42,6 +42,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 @Timeout(30)
+// Thread.sleep here simulates pacing and park windows in real-time
+// streaming behavior — replacing it with synchronization would change
+// what is being tested
+@SuppressWarnings("java:S2925")
 class ExchangeTest {
 
     private static final RestxopConfig CONFIG = RestxopConfig.defaults();
@@ -113,7 +117,7 @@ class ExchangeTest {
     }
 
     @Test
-    void failPoisonsBuffersReleasesResourcesAndDispatches() throws Exception {
+    void failPoisonsBuffersReleasesResourcesAndDispatches() {
         CapturingListener listener = new CapturingListener();
         Exchange exchange = Exchange.open(CONFIG, List.of(listener));
         AtomicInteger closeCount = new AtomicInteger();
@@ -248,8 +252,9 @@ class ExchangeTest {
 
         exchange.recordSpooled(new TestAttachmentInfo("cid-a"), 500);
         exchange.recordSpooled(new TestAttachmentInfo("cid-a"), 600); // running total, not additive
+        TestAttachmentInfo cidB = new TestAttachmentInfo("cid-b");
         LimitExceededException e = assertThrows(LimitExceededException.class,
-                () -> exchange.recordSpooled(new TestAttachmentInfo("cid-b"), 500));
+                () -> exchange.recordSpooled(cidB, 500));
         assertEquals("spool.max-per-message", e.limitName());
         assertEquals(1000, e.configuredValue());
     }

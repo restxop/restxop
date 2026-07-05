@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 public class StubRootPartCodec implements RootPartCodec {
 
     /** Marker payload whose serialization fails midway (write-path injection). */
+    @SuppressWarnings("java:S2094") // instantiable marker type, matched by identity
     public static final class FailingPayload {
     }
 

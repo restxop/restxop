@@ -209,7 +209,9 @@ public final class Exchange implements AutoCloseable {
 
     /** Fires the {@code attachmentConsumed} listener event. */
     public void attachmentConsumed(AttachmentInfo attachment) {
-        log.debug("[exchange {}] attachment '{}' consumed", id, attachment.contentId());
+        if (log.isDebugEnabled()) {
+            log.debug("[exchange {}] attachment '{}' consumed", id, attachment.contentId());
+        }
         dispatch(l -> l.attachmentConsumed(info, attachment));
     }
 
@@ -314,6 +316,9 @@ public final class Exchange implements AutoCloseable {
         }
     }
 
+    // Catches Throwable deliberately: a misbehaving user listener (up to
+    // and including LinkageError) must never break the exchange
+    @SuppressWarnings("java:S1181")
     private void dispatch(Consumer<ExchangeListener> event) {
         for (ExchangeListener listener : listeners) {
             try {

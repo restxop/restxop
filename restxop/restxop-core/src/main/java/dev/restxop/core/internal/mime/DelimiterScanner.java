@@ -36,6 +36,10 @@ import java.nio.charset.StandardCharsets;
  * delimiter (including its optional leading CR) can never be split by a
  * refill and leak bytes into content. Single-threaded use by the drain.</p>
  */
+// The scanner is a byte-verified delimiter automaton (wire-format §2,
+// pinned by the shared fixture corpus): its complexity, loop jumps, and
+// outer-class buffer helpers are the algorithm, not accidental structure
+@SuppressWarnings({"java:S3776", "java:S3398", "java:S135"})
 public final class DelimiterScanner {
 
     /** Longest accepted run of transport padding (WSP) after the boundary. */

@@ -51,6 +51,9 @@ public final class Reaper {
     }
 
     /** Schedules {@code reclamation} to run after {@code ttl}. */
+    // ScheduledFuture<?> is the JDK scheduler's own return shape; callers
+    // only cancel it
+    @SuppressWarnings("java:S1452")
     public static ScheduledFuture<?> schedule(Runnable reclamation, Duration ttl) {
         return Holder.SCHEDULER.schedule(reclamation, ttl.toNanos(), TimeUnit.NANOSECONDS);
     }

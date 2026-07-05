@@ -41,6 +41,10 @@ import org.junit.jupiter.api.Timeout;
  * of written and read bytes. Runs in the scheduled `stress` group.
  */
 @Tag("stress")
+// Thread.sleep here simulates pacing and park windows in real-time
+// streaming behavior — replacing it with synchronization would change
+// what is being tested
+@SuppressWarnings("java:S2925")
 class ChaseBufferStressTest {
 
     private static final int ITERATIONS = 10_000;

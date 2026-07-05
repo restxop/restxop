@@ -56,6 +56,9 @@ public final class ContentTypeParams {
         return new ContentTypeParams(mediaType, parameters);
     }
 
+    // RFC 2045 parameter scanning (quoting, escapes, separators) is one
+    // cohesive automaton; splitting it would obscure the grammar
+    @SuppressWarnings("java:S3776")
     private static void parseParameters(String value, int from, Map<String, String> out) {
         int i = from;
         int length = value.length();

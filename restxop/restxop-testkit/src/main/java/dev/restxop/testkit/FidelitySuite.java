@@ -56,6 +56,9 @@ import org.junit.jupiter.api.Timeout;
 @Timeout(120)
 public abstract class FidelitySuite {
 
+    private static final String CONTENT_ID_PREFIX = "Content-ID:";
+    private static final String APPLICATION_PDF = "application/pdf";
+
     /** Serializes through the implementation under test (deterministic ids). */
     protected abstract EncodedMessage encode(Object payload, WriterSettings settings);
 
@@ -115,7 +118,7 @@ public abstract class FidelitySuite {
         outgoing.missing = null;
 
         EncodedMessage message = encode(outgoing, WriterSettings.fixture());
-        assertEquals(6, count(message.body(), "Content-ID:"),
+        assertEquals(6, count(message.body(), CONTENT_ID_PREFIX),
                 "root + five attachment parts, none for the null field");
 
         RichPayload incoming = decode(message, RichPayload.class);
@@ -137,7 +140,7 @@ public abstract class FidelitySuite {
     protected void nullFieldEmitsNoPartAndZeroAttachmentPayloadIsImmediate() {
         EncodedMessage nullMessage = encode(new ReportPayload("no report", null),
                 WriterSettings.fixture());
-        assertEquals(1, count(nullMessage.body(), "Content-ID:"), "root part only");
+        assertEquals(1, count(nullMessage.body(), CONTENT_ID_PREFIX), "root part only");
         ReportPayload nullIncoming = decode(nullMessage, ReportPayload.class);
         assertEquals("no report", nullIncoming.title);
         assertNull(nullIncoming.report);
@@ -157,7 +160,7 @@ public abstract class FidelitySuite {
         EncodedMessage message = encode(new BundlePayload("dup", shared, shared),
                 WriterSettings.fixture());
 
-        assertEquals(2, count(message.body(), "Content-ID:"), "root + exactly one shared part");
+        assertEquals(2, count(message.body(), CONTENT_ID_PREFIX), "root + exactly one shared part");
 
         BundlePayload incoming = decode(message, BundlePayload.class);
         assertSame(incoming.first, incoming.second, "same instance for the same Content-ID");
@@ -193,7 +196,7 @@ public abstract class FidelitySuite {
     protected void zeroByteAttachmentRoundTrips() throws IOException {
         EncodedMessage message = encode(new ReportPayload("empty", Attachment.of(new byte[0])),
                 WriterSettings.fixture());
-        assertEquals(2, count(message.body(), "Content-ID:"), "empty part still transmitted");
+        assertEquals(2, count(message.body(), CONTENT_ID_PREFIX), "empty part still transmitted");
         ReportPayload incoming = decode(message, ReportPayload.class);
         assertNotNull(incoming.report);
         assertArrayEquals(new byte[0], incoming.report.contentStream().readAllBytes());
@@ -209,7 +212,7 @@ public abstract class FidelitySuite {
         ReportPayload outgoing = new ReportPayload("meta",
                 Attachment.builder(bytes)
                         .filename("quarterly report.pdf")
-                        .contentType("application/pdf")
+                        .contentType(APPLICATION_PDF)
                         .build());
         EncodedMessage message = encode(outgoing, WriterSettings.fixture());
 
@@ -221,7 +224,7 @@ public abstract class FidelitySuite {
 
         assertEquals("quarterly report.pdf", incoming.report.filename().orElseThrow(
                 () -> new AssertionError("filename must be available before reading content")));
-        assertEquals("application/pdf", incoming.report.contentType().orElseThrow());
+        assertEquals(APPLICATION_PDF, incoming.report.contentType().orElseThrow());
     }
 
     @Test
@@ -246,7 +249,7 @@ public abstract class FidelitySuite {
         ReportPayload outgoing = new ReportPayload("intl",
                 Attachment.builder(content(11, 2048))
                         .filename(filename)
-                        .contentType("application/pdf")
+                        .contentType(APPLICATION_PDF)
                         .build());
 
         EncodedMessage message = encode(outgoing, WriterSettings.fixture());
@@ -270,7 +273,7 @@ public abstract class FidelitySuite {
         assertArrayEquals("pdf content bytes for the rfc6266 fixture"
                 .getBytes(StandardCharsets.ISO_8859_1), received);
         assertEquals("naïve – 文件.pdf", incoming.report.filename().orElseThrow());
-        assertEquals("application/pdf", incoming.report.contentType().orElseThrow());
+        assertEquals(APPLICATION_PDF, incoming.report.contentType().orElseThrow());
     }
 
     // ------------------------------------------------------------------
@@ -279,14 +282,10 @@ public abstract class FidelitySuite {
 
     protected static int indexOf(byte[] haystack, String needle) {
         byte[] n = needle.getBytes(StandardCharsets.ISO_8859_1);
-        outer:
         for (int i = 0; i <= haystack.length - n.length; i++) {
-            for (int j = 0; j < n.length; j++) {
-                if (haystack[i + j] != n[j]) {
-                    continue outer;
-                }
+            if (matchesAt(haystack, i, n)) {
+                return i;
             }
-            return i;
         }
         throw new IllegalStateException("marker not found: " + needle);
     }
@@ -337,4 +336,13 @@ public abstract class FidelitySuite {
             return n;
         }
     }
+    private static boolean matchesAt(byte[] haystack, int at, byte[] needle) {
+        for (int j = 0; j < needle.length; j++) {
+            if (haystack[at + j] != needle[j]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

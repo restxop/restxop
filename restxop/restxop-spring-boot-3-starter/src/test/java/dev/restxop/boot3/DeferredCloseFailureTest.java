@@ -60,6 +60,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
             "restxop.timeouts.read-wait=500ms",
         })
 @Timeout(60)
+// Thread.sleep here simulates pacing and park windows in real-time
+// streaming behavior — replacing it with synchronization would change
+// what is being tested
+@SuppressWarnings("java:S2925")
 class DeferredCloseFailureTest {
 
     static final String BOUNDARY = "trunc-boundary-01";

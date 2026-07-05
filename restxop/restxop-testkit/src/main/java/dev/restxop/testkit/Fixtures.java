@@ -33,6 +33,9 @@ import java.util.Locale;
  *       supplies the Content-Type.</li>
  * </ul>
  */
+// Fixture-file scanning is one cohesive parser loop; the jumps mirror the
+// record grammar
+@SuppressWarnings({"java:S3776", "java:S135"})
 public final class Fixtures {
 
     private static final String ROOT = "/fixtures/";

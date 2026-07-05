@@ -299,15 +299,20 @@ public abstract class LegacyCompatSuite {
     }
 
     private static int indexOf(byte[] haystack, byte[] needle, int from) {
-        outer:
         for (int i = Math.max(from, 0); i <= haystack.length - needle.length; i++) {
-            for (int j = 0; j < needle.length; j++) {
-                if (haystack[i + j] != needle[j]) {
-                    continue outer;
-                }
+            if (matchesAt(haystack, i, needle)) {
+                return i;
             }
-            return i;
         }
         throw new IllegalStateException("marker not found in capture");
+    }
+
+    private static boolean matchesAt(byte[] haystack, int at, byte[] needle) {
+        for (int j = 0; j < needle.length; j++) {
+            if (haystack[at + j] != needle[j]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

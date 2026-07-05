@@ -43,6 +43,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 @Timeout(30)
+// Wire strings keep explicit \r\n: text blocks would obscure the exact
+// CRLF bytes under test
+@SuppressWarnings("java:S6126")
 class MessageWriterTest {
 
     private static final String BOUNDARY = "rx-fixture-0001";

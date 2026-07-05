@@ -56,6 +56,10 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 
 @Timeout(60)
+// Thread.sleep here simulates pacing and park windows in real-time
+// streaming behavior — replacing it with synchronization would change
+// what is being tested
+@SuppressWarnings("java:S2925")
 class MessageReaderTest {
 
     private static final String BOUNDARY = "test-boundary-4711";
@@ -239,7 +243,7 @@ class MessageReaderTest {
     }
 
     @Test
-    void zeroAttachmentMessageCompletesImmediately() throws Exception {
+    void zeroAttachmentMessageCompletesImmediately() {
         byte[] body = message(List.of(), List.of());
         CountingInputStream transport = new CountingInputStream(new ByteArrayInputStream(body));
         AtomicBoolean released = new AtomicBoolean();

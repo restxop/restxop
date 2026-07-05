@@ -116,8 +116,8 @@ public class RestxopAutoConfiguration {
 
         @Bean
         org.springframework.cloud.openfeign.FeignBuilderCustomizer restxopFeignBuilderCustomizer() {
-            // The restxop decoder owns response lifetime (deferred close);
-            // Feign must not close after decode
+            // The restxop decoder owns response lifetime via deferred close,
+            // so Feign must not close after decode
             return feign.Feign.Builder::doNotCloseAfterDecode;
         }
     }
@@ -134,8 +134,11 @@ public class RestxopAutoConfiguration {
         WebMvcConfigurer restxopWebMvcConfigurer(RestxopHttpMessageConverter converter) {
             return new WebMvcConfigurer() {
                 @Override
-                public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-                    converters.add(0, converter);
+                public void configureMessageConverters(
+                        org.springframework.http.converter.HttpMessageConverters.ServerBuilder builder) {
+                    // Custom converters precede the registered defaults, so
+                    // restxop wins content-type resolution for multipart/related
+                    builder.addCustomConverter(converter);
                 }
             };
         }

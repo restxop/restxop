@@ -67,7 +67,14 @@ import org.junit.jupiter.api.io.TempDir;
  */
 @Tag("failure")
 @Timeout(60)
+// Wire strings keep explicit \r\n (text blocks would obscure the CRLF
+// bytes under test); consumer threads capture Throwable so cross-thread
+// failures reach the assertion
+@SuppressWarnings({"java:S6126", "java:S1181"})
 public abstract class FailureInjectionSuite {
+
+    private static final String EXCHANGE_FAILED_EVENT = "exchangeFailed";
+    private static final String ATT1_CONTENT_ID = "Content-ID: <att-1>";
 
     protected static final String CONTENT_TYPE = "multipart/related; type=\"application/json\"; "
             + "boundary=\"rx-fixture-0001\"; start=\"<root>\"";
@@ -147,14 +154,10 @@ public abstract class FailureInjectionSuite {
 
     protected static int indexOf(byte[] haystack, String needle) {
         byte[] n = needle.getBytes(StandardCharsets.ISO_8859_1);
-        outer:
         for (int i = 0; i <= haystack.length - n.length; i++) {
-            for (int j = 0; j < n.length; j++) {
-                if (haystack[i + j] != n[j]) {
-                    continue outer;
-                }
+            if (matchesAt(haystack, i, n)) {
+                return i;
             }
-            return i;
         }
         throw new IllegalStateException("marker not found: " + needle);
     }
@@ -182,7 +185,7 @@ public abstract class FailureInjectionSuite {
                 () -> reader.read(contentType, new ByteArrayInputStream(body),
                         ResolvableTypeInfo.of(ReportPayload.class), probe.asReleaseHandle()));
         assertHygiene(probe, capture);
-        assertTrue(capture.has("exchangeFailed"), capture.names().toString());
+        assertTrue(capture.has(EXCHANGE_FAILED_EVENT), capture.names().toString());
         return error;
     }
 
@@ -200,7 +203,7 @@ public abstract class FailureInjectionSuite {
                 () -> result.payload().report.contentStream().readAllBytes());
         assertHygiene(probe, capture);
         assertTrue(capture.has("payloadDelivered"), capture.names().toString());
-        assertTrue(capture.has("exchangeFailed"), capture.names().toString());
+        assertTrue(capture.has(EXCHANGE_FAILED_EVENT), capture.names().toString());
         return error;
     }
 
@@ -225,7 +228,7 @@ public abstract class FailureInjectionSuite {
     @Test
     protected void severedInsideThePartHeaders() throws Exception {
         byte[] full = encodeSample(sampleContent(64));
-        byte[] severed = cut(full, indexOf(full, "Content-ID: <att-1>") + 10);
+        byte[] severed = cut(full, indexOf(full, ATT1_CONTENT_ID) + 10);
         assertInstanceOf(MalformedMessageException.class,
                 assertDrainPhaseFailure(severed, config().build()));
     }
@@ -233,7 +236,7 @@ public abstract class FailureInjectionSuite {
     @Test
     protected void severedMidContentUnblocksAnAlreadyBlockedReader() throws Exception {
         byte[] full = encodeSample(sampleContent(64 * 1024));
-        int gateAt = indexOf(full, "Content-ID: <att-1>") + 2048;
+        int gateAt = indexOf(full, ATT1_CONTENT_ID) + 2048;
         SeverableInputStream transport = new SeverableInputStream(full, gateAt);
         ListenerCapture capture = new ListenerCapture();
         SpoolHygiene.ConnectionProbe probe = new SpoolHygiene.ConnectionProbe();
@@ -270,7 +273,7 @@ public abstract class FailureInjectionSuite {
         RestxopException error = assertInstanceOf(RestxopException.class, thrown.get());
         assertTrue(String.valueOf(error).contains("exchange"), error.toString());
         assertHygiene(probe, capture);
-        assertTrue(capture.has("exchangeFailed"));
+        assertTrue(capture.has(EXCHANGE_FAILED_EVENT));
     }
 
     @Test
@@ -429,7 +432,7 @@ public abstract class FailureInjectionSuite {
         // Cap far below the content size: buffering the remainder would breach it
         RestxopConfig config = config().spoolMaxPerAttachment(8 * 1024)
                 .spoolMaxPerMessage(16 * 1024).build();
-        int gateAt = indexOf(body, "Content-ID: <att-1>") + 2048;
+        int gateAt = indexOf(body, ATT1_CONTENT_ID) + 2048;
         GatedInputStream transport = new GatedInputStream(body, gateAt);
         ListenerCapture capture = new ListenerCapture();
         SpoolHygiene.ConnectionProbe probe = new SpoolHygiene.ConnectionProbe();
@@ -455,7 +458,7 @@ public abstract class FailureInjectionSuite {
     @Test
     protected void readWaitDeadlineExpiresAgainstAStalledSource() throws Exception {
         byte[] body = encodeSample(sampleContent(64 * 1024));
-        int gateAt = indexOf(body, "Content-ID: <att-1>") + 4096 + 2048;
+        int gateAt = indexOf(body, ATT1_CONTENT_ID) + 4096 + 2048;
         SeverableInputStream transport = new SeverableInputStream(body, gateAt);
         ListenerCapture capture = new ListenerCapture();
         SpoolHygiene.ConnectionProbe probe = new SpoolHygiene.ConnectionProbe();
@@ -469,7 +472,7 @@ public abstract class FailureInjectionSuite {
         attachment.readNBytes(4096 + 1024); // catch up with the drain, then stall
 
         long start = System.nanoTime();
-        assertThrows(ExchangeTimeoutException.class, () -> attachment.readAllBytes());
+        assertThrows(ExchangeTimeoutException.class, attachment::readAllBytes);
         long waitedMillis = (System.nanoTime() - start) / 1_000_000;
         assertTrue(waitedMillis >= 380, "deadline must be honored, waited " + waitedMillis);
         assertTrue(waitedMillis <= 440 + 1000,
@@ -482,7 +485,7 @@ public abstract class FailureInjectionSuite {
     @Test
     protected void ttlWakesAReaderBlockedLongerThanItsReadWait() throws Exception {
         byte[] body = encodeSample(sampleContent(64 * 1024));
-        int gateAt = indexOf(body, "Content-ID: <att-1>") + 1024;
+        int gateAt = indexOf(body, ATT1_CONTENT_ID) + 1024;
         // The source trickles a byte every 150 ms: the reader keeps making
         // progress inside its read-wait, so only the TTL can end the wait —
         // deterministically exercising reclaim-wakes-blocked-reader
@@ -621,7 +624,7 @@ public abstract class FailureInjectionSuite {
         assertTrue(String.valueOf(cause.getMessage()).contains("does-not-exist")
                         || cause instanceof IOException,
                 "descriptive typed error required, was " + cause);
-        assertTrue(capture.has("exchangeFailed"));
+        assertTrue(capture.has(EXCHANGE_FAILED_EVENT));
         assertTrue(capture.has("exchangeClosed"));
         SpoolHygiene.assertNoResidualSpoolFiles(spoolDir);
     }
@@ -636,7 +639,7 @@ public abstract class FailureInjectionSuite {
         assertEquals(Exchange.State.FAILED, exchange.state());
         assertTrue(exchange.failureCause().orElseThrow().getMessage().contains("serialization"),
                 String.valueOf(exchange.failureCause().orElseThrow()));
-        assertTrue(capture.has("exchangeFailed"));
+        assertTrue(capture.has(EXCHANGE_FAILED_EVENT));
     }
 
     @Test
@@ -673,7 +676,7 @@ public abstract class FailureInjectionSuite {
         assertTrue(exchange.failureCause().orElseThrow().getMessage().contains("injected"),
                 String.valueOf(exchange.failureCause().orElseThrow()));
         assertTrue(sourceClosed.get(), "attachment source must be closed on abort (FR-014)");
-        assertTrue(capture.has("exchangeFailed"));
+        assertTrue(capture.has(EXCHANGE_FAILED_EVENT));
         SpoolHygiene.assertNoResidualSpoolFiles(spoolDir);
     }
 
@@ -842,4 +845,13 @@ public abstract class FailureInjectionSuite {
             return n;
         }
     }
+    private static boolean matchesAt(byte[] haystack, int at, byte[] needle) {
+        for (int j = 0; j < needle.length; j++) {
+            if (haystack[at + j] != needle[j]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

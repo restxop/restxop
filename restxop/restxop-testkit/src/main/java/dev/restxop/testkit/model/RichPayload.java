@@ -34,5 +34,6 @@ public class RichPayload extends RichPayloadBase {
     public Attachment missing;
 
     public RichPayload() {
+        // codec instantiation
     }
 }

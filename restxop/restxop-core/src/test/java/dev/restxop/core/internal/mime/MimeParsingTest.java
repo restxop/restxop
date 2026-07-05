@@ -28,6 +28,9 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+// Wire strings keep explicit \r\n: text blocks would obscure the exact
+// CRLF bytes under test
+@SuppressWarnings("java:S6126")
 class MimeParsingTest {
 
     private static InputStream stream(String text) {
@@ -144,8 +147,9 @@ class MimeParsingTest {
         @Test
         void oversizedHeaderBlockHitsTheConfiguredBound() {
             String big = "X-Big: " + "v".repeat(200) + "\r\n\r\n";
+            InputStream oversized = stream(big);
             LimitExceededException e = assertThrows(LimitExceededException.class,
-                    () -> PartHeaders.parse(stream(big), 64, "ex-test"));
+                    () -> PartHeaders.parse(oversized, 64, "ex-test"));
             assertEquals("limits.max-part-header-bytes", e.limitName());
             assertEquals(64, e.configuredValue());
         }

@@ -76,58 +76,52 @@ class RestxopConfigTest {
 
     @Test
     void rejectsNonPositiveSizes() {
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().memoryWindowPerPart(0).build());
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().drainPoolSize(-1).build());
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().maxParts(0).build());
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().maxRootPartBytes(-5).build());
+        RestxopConfig.Builder invalid1 = RestxopConfig.builder().memoryWindowPerPart(0);
+        assertThrows(IllegalArgumentException.class, invalid1::build);
+        RestxopConfig.Builder invalid2 = RestxopConfig.builder().drainPoolSize(-1);
+        assertThrows(IllegalArgumentException.class, invalid2::build);
+        RestxopConfig.Builder invalid3 = RestxopConfig.builder().maxParts(0);
+        assertThrows(IllegalArgumentException.class, invalid3::build);
+        RestxopConfig.Builder invalid4 = RestxopConfig.builder().maxRootPartBytes(-5);
+        assertThrows(IllegalArgumentException.class, invalid4::build);
     }
 
     @Test
     void rejectsWindowLargerThanPerAttachmentCap() {
-        assertThrows(IllegalArgumentException.class, () -> RestxopConfig.builder()
-                .memoryWindowPerPart(4096)
-                .spoolMaxPerAttachment(1024)
-                .build());
+        RestxopConfig.Builder invalid5 = RestxopConfig.builder() .memoryWindowPerPart(4096) .spoolMaxPerAttachment(1024) ;
+        assertThrows(IllegalArgumentException.class, invalid5::build);
     }
 
     @Test
     void rejectsPerAttachmentCapAbovePerMessageCap() {
-        assertThrows(IllegalArgumentException.class, () -> RestxopConfig.builder()
-                .spoolMaxPerAttachment(4096)
-                .spoolMaxPerMessage(2048)
-                .build());
+        RestxopConfig.Builder invalid6 = RestxopConfig.builder() .spoolMaxPerAttachment(4096) .spoolMaxPerMessage(2048) ;
+        assertThrows(IllegalArgumentException.class, invalid6::build);
     }
 
     @Test
     void rejectsReadWaitAboveExchangeTtl() {
-        assertThrows(IllegalArgumentException.class, () -> RestxopConfig.builder()
-                .readWait(Duration.ofMinutes(20))
-                .exchangeTtl(Duration.ofMinutes(10))
-                .build());
+        RestxopConfig.Builder invalid7 = RestxopConfig.builder() .readWait(Duration.ofMinutes(20)) .exchangeTtl(Duration.ofMinutes(10)) ;
+        assertThrows(IllegalArgumentException.class, invalid7::build);
     }
 
     @Test
     void rejectsReadBufferBelowOneKiB() {
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().readBufferSize(512).build());
+        RestxopConfig.Builder invalid8 = RestxopConfig.builder().readBufferSize(512);
+        assertThrows(IllegalArgumentException.class, invalid8::build);
     }
 
     @Test
     void rejectsZeroTimeouts() {
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().exchangeTtl(Duration.ZERO).build());
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().readWait(Duration.ZERO).build());
+        RestxopConfig.Builder invalid9 = RestxopConfig.builder().exchangeTtl(Duration.ZERO);
+        assertThrows(IllegalArgumentException.class, invalid9::build);
+        RestxopConfig.Builder invalid10 = RestxopConfig.builder().readWait(Duration.ZERO);
+        assertThrows(IllegalArgumentException.class, invalid10::build);
     }
 
     @Test
     void rejectsMissingSpoolDirectory(@TempDir Path dir) {
         Path missing = dir.resolve("does-not-exist");
-        assertThrows(IllegalArgumentException.class,
-                () -> RestxopConfig.builder().spoolDirectory(missing).build());
+        RestxopConfig.Builder invalid11 = RestxopConfig.builder().spoolDirectory(missing);
+        assertThrows(IllegalArgumentException.class, invalid11::build);
     }
 }

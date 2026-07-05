@@ -105,8 +105,8 @@ public class RestxopAutoConfiguration {
 
         @Bean
         org.springframework.cloud.openfeign.FeignBuilderCustomizer restxopFeignBuilderCustomizer() {
-            // The restxop decoder owns response lifetime (deferred close);
-            // Feign must not close after decode
+            // The restxop decoder owns response lifetime via deferred close,
+            // so Feign must not close after decode
             return feign.Feign.Builder::doNotCloseAfterDecode;
         }
     }

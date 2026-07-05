@@ -126,6 +126,9 @@ final class DrainTask implements Runnable {
         }
     }
 
+    // Catches Throwable deliberately: the drain thread must poison the
+    // exchange on ANY failure rather than die silently (principle V)
+    @SuppressWarnings("java:S1181")
     private void drain() {
         try {
             int partCount = 1; // the root part is already consumed

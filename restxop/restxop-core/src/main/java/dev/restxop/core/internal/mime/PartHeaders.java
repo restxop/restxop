@@ -63,6 +63,9 @@ public final class PartHeaders {
         return new PartHeaders(values);
     }
 
+    // Header-block scanning (folding, CRLF/LF, bounds) is one cohesive
+    // automaton pinned by the parsing test suite
+    @SuppressWarnings("java:S3776")
     private static List<String> readLogicalLines(InputStream in, int maxHeaderBytes,
             String exchangeId) throws IOException {
         List<String> lines = new ArrayList<>();
@@ -145,6 +148,9 @@ public final class PartHeaders {
     }
 
     /** Decodes an RFC 5987 ext-value: {@code charset'language'percent-encoded}. */
+    // Percent-decoding consumes two extra chars per escape; advancing the
+    // index inside the loop is the canonical decoder idiom
+    @SuppressWarnings("java:S127")
     private static String decodeExtValue(String extValue) {
         int firstQuote = extValue.indexOf('\'');
         int secondQuote = firstQuote < 0 ? -1 : extValue.indexOf('\'', firstQuote + 1);
