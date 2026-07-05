@@ -260,14 +260,22 @@ one attachment, and compare the attachment checksum against the source.
 The fixture-driven `legacy` test group covers the same wire shapes
 offline: `mvn -pl restxop-testkit -Dgroups=legacy verify`.
 
-*Verified 2026-07-05 against a live archived legacy sample server (Java
-11):* a compat-mode restxop client (Boot 3 starter, one property flipped)
-consumed the legacy `composite/related` response byte-exactly — a
-13,264-byte PDF attachment with a SHA-256 identical to the raw wire
-capture, the typed payload usable at 50 ms, and the legacy
-`name` disposition parameter surfaced as the filename. The legacy sample
-exposes no receiving endpoint, so the write direction is verified against
-the captured fixtures and the §7 shape assertions rather than live.
+*Verified live 2026-07-05 against the archived legacy sample deployment
+(Java 11), in both directions:*
+
+- **Legacy → restxop:** a compat-mode restxop client (one property
+  flipped) consumed the legacy server's `composite/related` response
+  byte-exactly — a 13,264-byte PDF with a SHA-256 identical to the raw
+  wire capture, the typed payload usable at 50 ms, and the legacy `name`
+  disposition parameter surfaced as the filename. No trace of the legacy
+  reader's +2-byte artifact.
+- **restxop → legacy:** both archived legacy sample clients (RestTemplate
+  and Feign variants) consumed a compat-mode restxop server serving the
+  identical PDF and produced output files bit-identical to their
+  legacy-to-legacy baselines (13,266 bytes — the source plus the legacy
+  reader's own trailing CRLF, quantified against the same clients hitting
+  the legacy server). Fidelity is exactly "no worse than
+  legacy-to-legacy" (FR-031).
 
 ## Testing your own extensions
 
