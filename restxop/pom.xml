@@ -21,6 +21,20 @@
     </license>
   </licenses>
 
+  <scm>
+    <connection>scm:git:https://github.com/restxop/restxop.git</connection>
+    <developerConnection>scm:git:git@github.com:restxop/restxop.git</developerConnection>
+    <url>https://github.com/restxop/restxop</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>jshipman42</id>
+      <name>John Shipman</name>
+      <email>john@shipman.ws</email>
+    </developer>
+  </developers>
+
   <modules>
     <module>restxop-core</module>
     <module>restxop-jackson2</module>
