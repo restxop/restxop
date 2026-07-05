@@ -19,9 +19,9 @@
 
 **Purpose**: npm workspace, CI job, quality gates
 
-- [ ] T001 Create the npm workspace: `restxop-js/package.json` (name `restxop-js`, `"type": "module"`, `exports` map with types, `engines` = active Node LTS, zero runtime deps; dev deps typescript/vitest/@vitest/browser/playwright; scripts `build`, `test`, `test:browser`, `test:memory`, `check:size`), `restxop-js/tsconfig.json` (ES2022, strict, declaration output to `dist/`), `restxop-js/vitest.config.ts` (node) and `restxop-js/vitest.browser.config.ts` (Chromium via Playwright provider), Apache-2.0 `LICENSE` + header convention matching the Java sources
-- [ ] T002 [P] Extend CI in `.github/workflows/restxop-ci.yml`: a `js` job running `npm ci && npm run build && npm test && npm run test:browser` in `restxop-js/` (browser step installs Playwright Chromium), plus the hygiene script in its steps
-- [ ] T003 [P] Quality gates: `restxop-js/scripts/check-bundle-size.mjs` (gzip of the built entry graph must be < 10 KB, SC-006; wired into `npm test`) and extend `restxop/build-config/check-hygiene.sh` to scan `restxop-js/` sources and `package.json` coordinates with the allowlist approach
+- [X] T001 Create the npm workspace: `restxop-js/package.json` (name `restxop-js`, `"type": "module"`, `exports` map with types, `engines` = active Node LTS, zero runtime deps; dev deps typescript/vitest/@vitest/browser/playwright; scripts `build`, `test`, `test:browser`, `test:memory`, `check:size`), `restxop-js/tsconfig.json` (ES2022, strict, declaration output to `dist/`), `restxop-js/vitest.config.ts` (node) and `restxop-js/vitest.browser.config.ts` (Chromium via Playwright provider), Apache-2.0 `LICENSE` + header convention matching the Java sources
+- [X] T002 [P] Extend CI in `.github/workflows/restxop-ci.yml`: a `js` job running `npm ci && npm run build && npm test && npm run test:browser` in `restxop-js/` (browser step installs Playwright Chromium), plus the hygiene script in its steps
+- [X] T003 [P] Quality gates: `restxop-js/scripts/check-bundle-size.mjs` (gzip of the built entry graph must be < 10 KB, SC-006; wired into `npm test`) and extend `restxop/build-config/check-hygiene.sh` to scan `restxop-js/` sources and `package.json` coordinates with the allowlist approach
 
 ---
 
@@ -31,12 +31,12 @@
 
 **⚠️ CRITICAL**: No user story work until this phase completes
 
-- [ ] T004 [P] Error hierarchy per data-model.md in `restxop-js/src/errors.ts` (RestxopError, MalformedMessageError, LimitExceededError with limit/value, AttachmentUnavailableError, TransferError with cause, CancelledError with AbortError-compatible name) with unit test `restxop-js/test/errors.test.ts`
-- [ ] T005 [P] Fixture plumbing in `restxop-js/test/fixtures.ts`: load the shared `.http` corpus **by path** from `restxop/restxop-testkit/src/main/resources/fixtures/` (header-section + body-bytes format, body-only variant), plus `chunked(bytes, size)` → `ReadableStream<Uint8Array>` replay helper and the chunk-size matrix {1, 2, 3, 7, 64, 4096, 65536, whole}; self-test `restxop-js/test/fixtures.test.ts`
-- [ ] T006 Scanner tests FIRST (delimiter owns its leading CRLF — no trailing bytes in content; boundary-like content not split; the adversarial repeat-boundary fixture; bare-LF framing; preamble ignored incl. delimiter at byte 0; closing delimiter + epilogue; truncation → MalformedMessageError; every case across the full chunk matrix) in `restxop-js/test/scanner.test.ts`
-- [ ] T007 Scanner implementation per research R1 (chunk-incremental: LF-anchor scan with direct verification, keep-back of pattern+1 bytes across chunk edges, clean-prefix cache, tail validation with bounded padding, virtual leading CRLF, subarray bulk emission — no per-byte content path) in `restxop-js/src/scanner.ts`
-- [ ] T008 [P] Header/parameter tests FIRST (case-insensitive names, folding unfolded on read, LF tolerance, `--` inside values, latin-1 byte interpretation, header-size bound → LimitExceededError, Content-Type parameter parsing with quoting, §4 id normalization, RFC 6266/5987 `filename*` decoding with `filename`/`name` fallbacks) in `restxop-js/test/headers.test.ts`
-- [ ] T009 Header-block + parameter parser + id normalization implementation (wire-format §3–§4) in `restxop-js/src/headers.ts`
+- [X] T004 [P] Error hierarchy per data-model.md in `restxop-js/src/errors.ts` (RestxopError, MalformedMessageError, LimitExceededError with limit/value, AttachmentUnavailableError, TransferError with cause, CancelledError with AbortError-compatible name) with unit test `restxop-js/test/errors.test.ts`
+- [X] T005 [P] Fixture plumbing in `restxop-js/test/fixtures.ts`: load the shared `.http` corpus **by path** from `restxop/restxop-testkit/src/main/resources/fixtures/` (header-section + body-bytes format, body-only variant), plus `chunked(bytes, size)` → `ReadableStream<Uint8Array>` replay helper and the chunk-size matrix {1, 2, 3, 7, 64, 4096, 65536, whole}; self-test `restxop-js/test/fixtures.test.ts`
+- [X] T006 Scanner tests FIRST (delimiter owns its leading CRLF — no trailing bytes in content; boundary-like content not split; the adversarial repeat-boundary fixture; bare-LF framing; preamble ignored incl. delimiter at byte 0; closing delimiter + epilogue; truncation → MalformedMessageError; every case across the full chunk matrix) in `restxop-js/test/scanner.test.ts`
+- [X] T007 Scanner implementation per research R1 (chunk-incremental: LF-anchor scan with direct verification, keep-back of pattern+1 bytes across chunk edges, clean-prefix cache, tail validation with bounded padding, virtual leading CRLF, subarray bulk emission — no per-byte content path) in `restxop-js/src/scanner.ts`
+- [X] T008 [P] Header/parameter tests FIRST (case-insensitive names, folding unfolded on read, LF tolerance, `--` inside values, latin-1 byte interpretation, header-size bound → LimitExceededError, Content-Type parameter parsing with quoting, §4 id normalization, RFC 6266/5987 `filename*` decoding with `filename`/`name` fallbacks) in `restxop-js/test/headers.test.ts`
+- [X] T009 Header-block + parameter parser + id normalization implementation (wire-format §3–§4) in `restxop-js/src/headers.ts`
 
 **Checkpoint**: wire primitives proven against the shared corpus in isolation — story phases can begin
 
