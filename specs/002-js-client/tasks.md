@@ -50,14 +50,14 @@
 
 ### Tests for User Story 1 (write FIRST, must fail before implementation)
 
-- [ ] T010 [P] [US1] Session tests: payload resolves at root completion while the source is gated mid-attachment; `Include` stubs substituted with handles (incl. duplicate href → same handle instance); single-attachment stream and `bytes()` byte-exact against the canonical fixture; filename/contentType exposed; `completed` resolves at clean end; read-idle option honored — in `restxop-js/test/session.test.ts`
-- [ ] T011 [P] [US1] Conformance suite (canonical corpus × chunk matrix, checksums + metadata per fixture) in `restxop-js/test/conformance.test.ts`
+- [X] T010 [P] [US1] Session tests: payload resolves at root completion while the source is gated mid-attachment; `Include` stubs substituted with handles (incl. duplicate href → same handle instance); single-attachment stream and `bytes()` byte-exact against the canonical fixture; filename/contentType exposed; `completed` resolves at clean end; read-idle option honored — in `restxop-js/test/session.test.ts`
+- [X] T011 [P] [US1] Conformance suite (canonical corpus × chunk matrix, checksums + metadata per fixture) in `restxop-js/test/conformance.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] `MessageSession` + `AttachmentHandle` per data-model.md (readMessage core: outer Content-Type validation, bounded root buffering + JSON.parse + tree-walk substitution, in-order demand-driven pulls, retention primitives, states, read-idle deadline) in `restxop-js/src/session.ts` and `restxop-js/src/handle.ts`
-- [ ] T013 [US1] Public entry points: `restxop-js/src/index.ts` exports and `restxop-js/src/fetch.ts` (`restxopFetch` over global fetch, content-type extraction, signal passthrough) with a real-HTTP smoke test against a tiny Node `http` server serving fixture bytes in `restxop-js/test/fetch.test.ts`
-- [ ] T014 [US1] Browser-engine run: make `npm run test:browser` execute the conformance + session suites under Chromium (fixtures delivered via Vite asset handling in `vitest.browser.config.ts`); fix any platform deltas
+- [X] T012 [US1] `MessageSession` + `AttachmentHandle` per data-model.md (readMessage core: outer Content-Type validation, bounded root buffering + JSON.parse + tree-walk substitution, in-order demand-driven pulls, retention primitives, states, read-idle deadline) in `restxop-js/src/session.ts` and `restxop-js/src/handle.ts`
+- [X] T013 [US1] Public entry points: `restxop-js/src/index.ts` exports and `restxop-js/src/fetch.ts` (`restxopFetch` over global fetch, content-type extraction, signal passthrough) with a real-HTTP smoke test against a tiny Node `http` server serving fixture bytes in `restxop-js/test/fetch.test.ts`
+- [X] T014 [US1] Browser-engine run: make `npm run test:browser` execute the conformance + session suites under Chromium (fixtures delivered via Vite asset handling in `vitest.browser.config.ts`); fix any platform deltas
 - [ ] T015 [US1] Sample-server endpoint: `GET /document` returning a metadata payload (title, author, pages, created, status, tags) plus a genuine PDF `Attachment`, with CORS for the demo origin, in `restxop/restxop-samples/sample-server-boot4/src/main/java/dev/restxop/samples/server/DocumentController.java` (+ a small bundled PDF resource) and an integration test in the same module
 - [ ] T016 [US1] Demo app: `restxop-js/demo/` (Vite + React, private workspace member) — `DocumentView` calling `restxopFetch("/document")`, metadata panel rendered on payload resolution, live byte-progress from the handle stream, PDF displayed via object URL on completion, in `restxop-js/demo/src/`
 - [ ] T017 [US1] SC-001 validation run: demo against the sample server; verify a single `multipart/related` request, metadata visible < 1 s while streaming, PDF byte-identical; record results in quickstart notes
