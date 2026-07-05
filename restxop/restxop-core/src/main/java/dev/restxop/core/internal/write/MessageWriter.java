@@ -110,7 +110,7 @@ public final class MessageWriter {
     public void write(Exchange exchange, Object payload, OutputStream out) throws IOException {
         Collector collector = new Collector();
 
-        writeAscii(out, "\r\n--" + ids.boundary() + "\r\n"
+        writeAscii(out, CRLF + "--" + ids.boundary() + "\r\n"
                 + "Content-ID: <" + rootContentId() + ">\r\n"
                 + "Content-Type: application/json\r\n"
                 + "Content-Transfer-Encoding: binary\r\n\r\n");
@@ -125,7 +125,7 @@ public final class MessageWriter {
             exchange.checkTtl();
             Attachment attachment = registered.attachment();
             StringBuilder headers = new StringBuilder(128)
-                    .append("\r\n--").append(ids.boundary()).append(CRLF);
+                    .append(CRLF + "--").append(ids.boundary()).append(CRLF);
             if (legacy) {
                 // §7: bare (unbracketed) identifier, legacy disposition shape
                 headers.append("Content-ID: ").append(registered.contentId()).append(CRLF);
@@ -156,7 +156,7 @@ public final class MessageWriter {
             }
         }
 
-        writeAscii(out, "\r\n--" + ids.boundary() + "--\r\n");
+        writeAscii(out, CRLF + "--" + ids.boundary() + "--\r\n");
         out.flush();
     }
 
