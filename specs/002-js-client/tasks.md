@@ -111,12 +111,12 @@
 
 ### Tests for User Story 4 (write FIRST)
 
-- [ ] T023 [US4] Write suite: `buildMessage` output asserts canonical shapes (bracketed Content-IDs, quoted parameters, CRLF framing, `filename*` for non-ASCII names, default octet-stream type, null field → no part, duplicate source → one part with shared href); round trip through `readMessage` byte-exact from `Uint8Array`, `Blob`, and `File` sources — in `restxop-js/test/write.test.ts`
+- [X] T023 [US4] Write suite: `buildMessage` output asserts canonical shapes (bracketed Content-IDs, quoted parameters, CRLF framing, `filename*` for non-ASCII names, default octet-stream type, null field → no part, duplicate source → one part with shared href); round trip through `readMessage` byte-exact from `Uint8Array`, `Blob`, and `File` sources — in `restxop-js/test/write.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T024 [US4] Writer implementation: `attachment()` source wrapper, payload tree walk with identity dedup, message assembly (`Blob` in browser / `Uint8Array` in Node), `restxopFetch.post` convenience, in `restxop-js/src/write.ts` (+ exports in `restxop-js/src/index.ts`)
-- [ ] T025 [US4] Demo upload form posting a user-selected file + metadata via `buildMessage` to the sample server's `/upload`, displaying the echoed size/SHA-256, in `restxop-js/demo/src/`; SC-007 validation with a ~25 MB file recorded
+- [X] T024 [US4] Writer implementation: `attachment()` source wrapper, payload tree walk with identity dedup, message assembly (`Blob` in browser / `Uint8Array` in Node), `restxopFetch.post` convenience, in `restxop-js/src/write.ts` (+ exports in `restxop-js/src/index.ts`)
+- [X] T025 [US4] Demo upload form posting a user-selected file + metadata via `buildMessage` to the sample server's `/upload`, displaying the echoed size/SHA-256, in `restxop-js/demo/src/`; SC-007 validation with a ~25 MB file recorded
 
 **Checkpoint**: quickstart §6 passes
 

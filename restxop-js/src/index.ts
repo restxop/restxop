@@ -25,3 +25,4 @@ export {
 export { AttachmentHandle } from "./handle.js";
 export { readMessage, type RestxopMessage, type RestxopOptions } from "./session.js";
 export { restxopFetch } from "./fetch.js";
+export { attachment, AttachmentSource, buildMessage, type BuiltMessage } from "./write.js";

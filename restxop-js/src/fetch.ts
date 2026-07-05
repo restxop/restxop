@@ -16,6 +16,7 @@
 
 import { TransferError } from "./errors.js";
 import { readMessage, type RestxopMessage, type RestxopOptions } from "./session.js";
+import { buildMessage } from "./write.js";
 
 /**
  * The one-liner binding over global fetch: issues the request and consumes
@@ -41,3 +42,23 @@ export async function restxopFetch<T = unknown>(
   };
   return readMessage<T>(response.headers.get("content-type"), response.body, options);
 }
+
+/**
+ * Convenience POST: assembles the payload (attachment fields wrapped with
+ * `attachment()`) via {@link buildMessage} and sends it with global fetch.
+ */
+restxopFetch.post = async function post(
+  input: RequestInfo | URL,
+  payload: unknown,
+  init?: RequestInit,
+): Promise<Response> {
+  const { contentType, body } = buildMessage(payload);
+  const headers = new Headers(init?.headers);
+  headers.set("content-type", contentType);
+  return fetch(input, {
+    ...init,
+    method: init?.method ?? "POST",
+    headers,
+    body: body as BodyInit,
+  });
+};

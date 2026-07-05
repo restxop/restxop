@@ -103,6 +103,19 @@ In the demo's upload form, choose a file (~25 MB) and submit.
 SHA-256 matching the file; the request body was a single well-formed
 restxop message.
 
+Automated equivalent (both servers running, from `restxop-js/`):
+
+```bash
+node scripts/validate-sc007.mjs
+```
+
+> **Validated 2026-07-05** (T025, Chromium via Playwright): a generated
+> 26,214,400-byte file uploaded through the demo form as exactly **1**
+> `multipart/related` request; the Java sample server echoed the exact
+> size and a SHA-256 identical to the local digest
+> (`439f9931…cdd56c3`) — a JS-writer → Java-reader round trip.
+> **SC-007 PASS.**
+
 ## 7. Node consumption smoke (US5)
 
 ```bash

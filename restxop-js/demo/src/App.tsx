@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { restxopFetch, type AttachmentHandle } from "restxop-js";
+import { attachment, restxopFetch, type AttachmentHandle } from "restxop-js";
 
 const SERVER = new URLSearchParams(location.search).get("server") ?? "http://localhost:18080";
 const SIZE = new URLSearchParams(location.search).get("size") ?? "8388608";
@@ -23,6 +23,72 @@ interface Timing {
 async function sha256Hex(blob: Blob): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+interface UploadEcho {
+  label: string;
+  size: number;
+  sha256: string;
+}
+
+/** Upload form: one restxop message carrying metadata plus the file. */
+function UploadPanel() {
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [echo, setEcho] = useState<UploadEcho | null>(null);
+  const [localSha, setLocalSha] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function upload() {
+    if (!file) return;
+    setBusy(true);
+    setEcho(null);
+    setError(null);
+    try {
+      const [response, digest] = await Promise.all([
+        restxopFetch.post(`${SERVER}/upload`, {
+          label: file.name,
+          data: attachment(file),
+        }),
+        sha256Hex(file),
+      ]);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      setEcho((await response.json()) as UploadEcho);
+      setLocalSha(digest);
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="panel">
+      <h2>Upload</h2>
+      <p>Send a file together with metadata as one restxop message.</p>
+      <input
+        type="file"
+        data-testid="upload-file"
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+      />
+      <button type="button" data-testid="upload-go" disabled={!file || busy} onClick={upload}>
+        {busy ? "uploading…" : "upload"}
+      </button>
+      {error && <p role="alert">Upload failed: {error}</p>}
+      {echo && (
+        <dl>
+          <dt>Echoed label</dt>
+          <dd data-testid="echo-label">{echo.label}</dd>
+          <dt>Echoed size</dt>
+          <dd data-testid="echo-size">{echo.size}</dd>
+          <dt>Echoed SHA-256</dt>
+          <dd data-testid="echo-sha">{echo.sha256}</dd>
+          <dt>Matches local digest</dt>
+          <dd data-testid="echo-match">{String(echo.sha256 === localSha)}</dd>
+        </dl>
+      )}
+    </div>
+  );
 }
 
 export function App() {
@@ -132,6 +198,7 @@ export function App() {
             </>
           )}
         </div>
+        <UploadPanel />
       </div>
     </div>
   );
