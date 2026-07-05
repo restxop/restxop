@@ -38,7 +38,7 @@ if [ -n "$HITS" ]; then
 fi
 
 echo "== hygiene: Maven coordinates"
-ALLOWED_GROUPS='dev\.restxop|org\.junit\.jupiter|org\.springframework|org\.springframework\.boot|org\.springframework\.cloud|com\.fasterxml\.jackson.*|tools\.jackson.*|org\.slf4j|org\.junit|jakarta\.activation|org\.jacoco|com\.github\.spotbugs|com\.mycila|org\.apache\.maven\.plugins|org\.sonarsource\.scanner\.maven'
+ALLOWED_GROUPS='dev\.restxop|org\.junit\.jupiter|org\.springframework|org\.springframework\.boot|org\.springframework\.cloud|com\.fasterxml\.jackson.*|tools\.jackson.*|org\.slf4j|org\.junit|jakarta\.activation|org\.jacoco|com\.github\.spotbugs|com\.mycila|org\.apache\.maven\.plugins|org\.sonarsource\.scanner\.maven|org\.sonatype\.central'
 GHITS=$(grep -RhoE '<groupId>[^<]+</groupId>' --include='pom.xml' --exclude-dir=target "$ROOT" \
       | sed -E 's#</?groupId>##g' \
       | grep -vE "^(${ALLOWED_GROUPS})$" || true)

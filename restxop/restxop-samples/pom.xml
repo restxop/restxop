@@ -17,6 +17,7 @@
 
   <properties>
     <!-- Samples are demonstration apps, not library artifacts -->
+    <skipPublishing>true</skipPublishing>
     <sonar.skip>true</sonar.skip>
     <jacoco.skip>true</jacoco.skip>
     <maven.javadoc.skip>true</maven.javadoc.skip>
