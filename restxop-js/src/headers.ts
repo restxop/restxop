@@ -82,7 +82,10 @@ export function parseHeaderBlock(block: Uint8Array): PartHeaders {
   if (disposition !== undefined) {
     const params = parseContentTypeParams(disposition).params;
     const extended = params.get("filename*");
-    filename = extended !== undefined ? decodeExtValue(extended) : params.get("filename") ?? params.get("name");
+    filename =
+      extended === undefined
+        ? (params.get("filename") ?? params.get("name"))
+        : decodeExtValue(extended);
   }
   return {
     first,
@@ -156,7 +159,7 @@ function decodeExtValue(extValue: string): string {
   const bytes: number[] = [];
   for (let i = 0; i < encoded.length; i++) {
     if (encoded[i] === "%" && i + 2 < encoded.length + 1) {
-      const hex = parseInt(encoded.slice(i + 1, i + 3), 16);
+      const hex = Number.parseInt(encoded.slice(i + 1, i + 3), 16);
       if (!Number.isNaN(hex)) {
         bytes.push(hex);
         i += 2;
@@ -174,7 +177,7 @@ function decodeExtValue(extValue: string): string {
 
 function latin1(bytes: Uint8Array): string {
   let out = "";
-  for (let i = 0; i < bytes.length; i++) out += String.fromCharCode(bytes[i]!);
+  for (const byte of bytes) out += String.fromCharCode(byte);
   return out;
 }
 

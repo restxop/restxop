@@ -80,8 +80,8 @@ export function buildMessage(payload: unknown): BuiltMessage {
         "Content-Type: application/json\r\n" +
         "Content-Transfer-Encoding: binary\r\n\r\n",
     ),
+    new TextEncoder().encode(JSON.stringify(substituted)),
   );
-  pieces.push(new TextEncoder().encode(JSON.stringify(substituted)));
   for (const part of parts) {
     const type = part.attachment.contentType ?? "application/octet-stream";
     const disposition =
@@ -96,8 +96,8 @@ export function buildMessage(payload: unknown): BuiltMessage {
           disposition +
           "Content-Transfer-Encoding: binary\r\n\r\n",
       ),
+      part.attachment.source,
     );
-    pieces.push(part.attachment.source);
   }
   pieces.push(ascii(`\r\n--${boundary}--\r\n`));
 
@@ -136,7 +136,7 @@ function substitute(
 function dispositionFilename(filename: string): string {
   // eslint-disable-next-line no-control-regex
   if (/^[\x20-\x7e]*$/.test(filename)) {
-    return `filename="${filename.replace(/([\\"])/g, "\\$1")}"`;
+    return `filename="${filename.replace(/([\\"])/g, String.raw`\$1`)}"`;
   }
   return `filename*=UTF-8''${rfc5987(filename)}`;
 }

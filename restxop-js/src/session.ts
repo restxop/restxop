@@ -112,7 +112,7 @@ class MessageSession implements HandleDriver {
       throw new MalformedMessageError(`unsupported media type '${outer.mediaType}'`);
     }
     const typeParam = outer.params.get("type");
-    if (!typeParam || typeParam.trim().toLowerCase() !== "application/json") {
+    if (typeParam?.trim().toLowerCase() !== "application/json") {
       throw new MalformedMessageError(
         `type parameter must be application/json, was '${typeParam ?? "<absent>"}'`,
       );
@@ -128,7 +128,9 @@ class MessageSession implements HandleDriver {
       this.resolveCompleted = resolve;
       this.rejectCompleted = reject;
     });
-    this.completed.catch(() => undefined); // observed via handles too
+    // Attaching immediately (not in start) so a failure before the caller
+    // awaits anything never surfaces as an unhandled rejection
+    this.completed.catch(() => undefined); // observed via handles too // NOSONAR typescript:S7059
     this.opts.signal?.addEventListener("abort", () => {
       this.fail(new CancelledError("consumption aborted"));
     });
@@ -236,12 +238,14 @@ class MessageSession implements HandleDriver {
    * truncation from the scanner, which must never mask the abort.
    */
   private failWith(cause: unknown, site: "parse" | "transfer"): RestxopError {
-    const mapped =
-      cause instanceof RestxopError
-        ? cause
-        : site === "transfer"
-          ? new TransferError("source failed mid-message", { cause })
-          : new MalformedMessageError("message parsing failed", { cause });
+    let mapped: RestxopError;
+    if (cause instanceof RestxopError) {
+      mapped = cause;
+    } else if (site === "transfer") {
+      mapped = new TransferError("source failed mid-message", { cause });
+    } else {
+      mapped = new MalformedMessageError("message parsing failed", { cause });
+    }
     this.fail(mapped);
     return this.failure ?? mapped;
   }
