@@ -130,7 +130,7 @@ class MessageSession implements HandleDriver {
     });
     // Attaching immediately (not in start) so a failure before the caller
     // awaits anything never surfaces as an unhandled rejection
-    this.completed.catch(() => undefined); // observed via handles too // NOSONAR typescript:S7059
+    this.completed.catch(() => undefined); // observed via handles too
     this.opts.signal?.addEventListener("abort", () => {
       this.fail(new CancelledError("consumption aborted"));
     });

@@ -136,7 +136,8 @@ function substitute(
 function dispositionFilename(filename: string): string {
   // eslint-disable-next-line no-control-regex
   if (/^[\x20-\x7e]*$/.test(filename)) {
-    return `filename="${filename.replace(/([\\"])/g, String.raw`\$1`)}"`;
+    const quoted = filename.replace(/([\\"])/g, String.raw`\$1`);
+    return `filename="${quoted}"`;
   }
   return `filename*=UTF-8''${rfc5987(filename)}`;
 }
