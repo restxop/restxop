@@ -193,6 +193,11 @@ class DeferredCloseFailureTest {
             ClientHttpRequest request = delegate.createRequest(uri, method);
             return new ClientHttpRequest() {
                 @Override
+                public java.util.Map<String, Object> getAttributes() {
+                    return request.getAttributes();
+                }
+
+                @Override
                 public ClientHttpResponse execute() throws IOException {
                     ClientHttpResponse response = request.execute();
                     return new org.springframework.http.client.ClientHttpResponse() {

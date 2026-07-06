@@ -15,7 +15,7 @@
   <description>Sample client on Spring Boot 4: downloads, verifies, and re-uploads a streamed attachment</description>
 
   <properties>
-    <spring-boot.version>4.0.1</spring-boot.version>
+    <spring-boot.version>4.0.7</spring-boot.version>
     <!-- The SC-001 acceptance test (tag fidelity, 1 GiB at 256 MB heap) is
          opt-in: run with -Dgroups=fidelity -->
     <excludedGroups>stress,load,perf,fidelity</excludedGroups>

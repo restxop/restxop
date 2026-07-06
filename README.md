@@ -27,7 +27,7 @@ Content-Disposition: attachment; filename="q3.pdf"
 
 | Directory | What | For |
 |---|---|---|
-| [`restxop/`](restxop/) | Java library (Maven reactor) | Spring Boot 3.2+ / 4.0+ services — server and client, eager-drain read model with bounded buffers and disk spill |
+| [`restxop/`](restxop/) | Java library (Maven reactor) | Spring Boot 3.5+ / 4.0+ services — server and client, eager-drain read model with bounded buffers and disk spill |
 | [`restxop-js/`](restxop-js/) | JavaScript/TypeScript client | Browsers and Node ≥ 20 — zero dependencies, < 10 KB, pull-based over native `fetch`/`ReadableStream`, payload-first |
 
 Both implementations are conformance-tested byte-for-byte against a shared

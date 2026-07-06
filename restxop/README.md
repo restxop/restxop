@@ -31,13 +31,13 @@ Content-Disposition: attachment; filename="q3.pdf"
 ## Requirements
 
 - Java 17+
-- Spring Boot **4.0+** (Jackson 3) or Spring Boot **3.2+** (Jackson 2)
+- Spring Boot **4.0+** (Jackson 3) or Spring Boot **3.5+** (Jackson 2)
 - Servlet stack (WebFlux is out of scope for v1)
 
 | Module | Use it when |
 |---|---|
 | `restxop-spring-boot-4-starter` | Spring Boot 4.x applications |
-| `restxop-spring-boot-3-starter` | Spring Boot 3.2+ applications |
+| `restxop-spring-boot-3-starter` | Spring Boot 3.5+ applications |
 | `restxop-core` | framework-free protocol engine (comes transitively) |
 | `restxop-jackson2` / `restxop-jackson3` | serializer adapters (come transitively) |
 | `restxop-testkit` | wire-level conformance suites for your own SPI implementations (test scope) |

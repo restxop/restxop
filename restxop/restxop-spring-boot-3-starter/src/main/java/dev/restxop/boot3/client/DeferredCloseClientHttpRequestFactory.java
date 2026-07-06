@@ -89,6 +89,11 @@ public final class DeferredCloseClientHttpRequestFactory implements ClientHttpRe
             this.delegate = delegate;
         }
 
+        @Override
+        public java.util.Map<String, Object> getAttributes() {
+            return delegate.getAttributes();
+        }
+
         /**
          * Preserves the delegate's streaming capability (FR-013): hiding it
          * would push message writers onto the buffered getBody() path.
