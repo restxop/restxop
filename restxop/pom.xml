@@ -116,6 +116,13 @@
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>
+        <!-- Transitive of spring-cloud-openfeign; pinned past CVE range
+             until the managed version catches up -->
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.18.0</version>
+      </dependency>
+      <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>
