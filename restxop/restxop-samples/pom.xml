@@ -31,7 +31,7 @@
         <!-- Transitive of the feign stack; pinned past CVE range -->
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
-        <version>1.84</version>
+        <version>1.85</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
